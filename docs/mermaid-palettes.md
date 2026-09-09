@@ -330,4 +330,3 @@ flowchart TB
 </table>
 
 [Back to the project overview](../README.md#how-it-works).
-
