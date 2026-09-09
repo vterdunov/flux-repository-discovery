@@ -1,8 +1,11 @@
 # flux-repository-discovery
 
-An HTTP service written in Go that discovers github.com repositories, applies named filters, and serves JSON for Flux Operator ExternalService. Supports organizations, personal accounts, private repositories, PATs, and GitHub Apps.
+Discovers GitHub repositories, filters them by topics, names and regular expressions, and provides inputs for Flux Operator.
 
-A source failure returns HTTP 503. A successful scan with no matches returns `{"inputs":[]}`. Partial catalogs and stale results are never served after a failed scan.
+Use cases:
+
+- **Automatic onboarding:** create a Flux `GitRepository` for every repository with the `gitops` topic.
+- **Environment selection:** feed separate production and staging `ResourceSet`s with repositories selected by their topics.
 
 ## How it works
 
@@ -39,8 +42,8 @@ flowchart TB
 
     subgraph discovery["flux-repository-discovery"]
         direction LR
-        scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
-        filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
+        scan["Periodic scan"] --> filters["Filters"]
+        filters --> inputs["Repository list<br/>as Flux Operator inputs"]
     end
 
     subgraph flux["Flux Operator"]
@@ -62,7 +65,7 @@ The service periodically scans the configured GitHub sources, applies each named
 
 ## Getting started
 
-Run the prebuilt image `ghcr.io/vterdunov/flux-repository-discovery:latest` with Docker. See [Container image and CI](#container-image-and-ci) for available tags and platforms. For private GHCR packages, [authenticate to the registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry) before pulling the image.
+Run the prebuilt image `ghcr.io/vterdunov/flux-repository-discovery:latest` with Docker. See [Container image](#container-image) for available platforms and the registry link. For private GHCR packages, [authenticate to the registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry) before pulling the image.
 
 Create `config.yaml` and `credentials.yaml` in your current directory using the [minimal PAT configuration below](#configuration). Replace `acme` with your GitHub owner and export `FRD_COMPANY_GITHUB_TOKEN` with a PAT that can read the intended repositories. The following command forwards that environment variable and mounts both files read-only:
 
