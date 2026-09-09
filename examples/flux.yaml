@@ -1,4 +1,3 @@
-# Consumer contract only. Provision the HTTP service separately.
 apiVersion: fluxcd.controlplane.io/v1
 kind: ResourceSetInputProvider
 metadata:
