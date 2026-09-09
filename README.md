@@ -4,8 +4,8 @@ Discovers GitHub repositories, filters them by topics, names and regular express
 
 Use cases:
 
-- **Automatic onboarding:** create a Flux `GitRepository` for every repository with the `gitops` topic.
-- **Environment selection:** feed separate production and staging `ResourceSet`s with repositories selected by their topics.
+- **Automatic GitOps onboarding.** Mark application repositories with the `gitops` topic and select them with a topic filter. Flux Operator uses these inputs to create a `GitRepository` for each match, as shown in the [Flux example](examples/flux.yaml). New matching repositories are picked up automatically.
+- **Separate production and staging.** Select repositories with the `production` topic and names matching `^service-`, while excluding sandbox repositories. Feed this selection to a production `ResourceSet` and use a separate filter for staging. Each environment gets its own repository selection and resource template.
 
 ## How it works
 
@@ -60,8 +60,6 @@ flowchart TB
     class inputs output
     class provider,resources consumer
 ```
-
-The service periodically scans the configured GitHub sources, applies each named filter, and serves the matching repositories as `{"inputs":[...]}`. Flux Operator polls the filter's HTTP endpoint through a `ResourceSetInputProvider` of type `ExternalService`. A `ResourceSet` uses these inputs to create Kubernetes resources, such as the `GitRepository` resources in the [Flux example](examples/flux.yaml).
 
 ## Getting started
 
