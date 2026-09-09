@@ -195,45 +195,31 @@ The example explicitly selects the `main` branch; adjust the template for your r
 
 The v1 HTTP API has no authentication. Separate middleware hooks are available for inputs and operator operations. Future CLI login through Google Workspace/OIDC is tracked in [docs/TODO.md](docs/TODO.md).
 
-## Development and verification
+## Development
 
-Install [mise](https://mise.jdx.dev/) to build from source. Development tool versions are pinned in [mise.toml](mise.toml).
+Install the development tools with [mise](https://mise.jdx.dev/):
 
 ```sh
 mise install
+```
+
+Create `config.yaml` and `credentials.yaml` as described in [Configuration](#configuration), then start the service:
+
+```sh
+mise run dev
+```
+
+Build the binary:
+
+```sh
 mise run build
-bin/flux-repository-discovery version
-bin/flux-repository-discovery validate --config examples/config.yaml
 ```
 
-To run the local binary with your configuration and credentials:
+Run tests or the full set of checks:
 
 ```sh
-bin/flux-repository-discovery serve \
-  --config config.yaml \
-  --credentials-file credentials.yaml
-```
-
-The only external runtime dependency is `go.yaml.in/yaml/v3`. Routing, CLI, HTTP, JSON, regular expressions, cryptography, and test tooling use the standard library.
-
-The service and CLI use `encoding/json/v2` and `encoding/json/jsontext`. Response formats, complete diff values, and configuration revisions remain stable. JSON decoding rejects duplicate fields and invalid UTF-8; see the [migration and verification record](docs/jsonv2-migration.md).
-
-The `config` package converts an input `Document` into an immutable `Config` with prepared filters. `Decode` reads file contents and applies defaults; `Parse` accepts a fully populated Go document. `Prepare` binds configuration to server environment settings and credential names, returning a `Runtime` for `service.New`. Dry-run uses the same captured server context. Accessors return copies of mutable collections. Regular expressions are compiled during parsing and reused during filtering. Zero `Config`, `Runtime`, and `Filter` values are rejected at preparation and execution boundaries. See the [refactor verification record](docs/verification.md#prepared-configuration-refactor).
-
-```sh
+mise run test
 mise run check
-# Run only the real binary, HTTP, CLI, and SIGTERM test:
-mise run test-cli
-# Live discovery against private GitHub fixtures (requires FRD_E2E_GITHUB_TOKEN):
-mise run test-e2e
-# Optional integration with a real, isolated Flux Operator:
-mise exec -- bash integration/flux/run.sh
 ```
 
-`check` runs unit tests, the race detector, golangci-lint, actionlint, GoReleaser configuration validation, a build, and the [Go binary test](integration/cli/cli_test.go). The binary test supports Linux/macOS and requires localhost access. It builds current sources into a temporary directory, starts the service without GitHub sources, and checks HTTP, the actual CLI dry-run, and SIGTERM shutdown. Temporary files and child processes are cleaned up on both success and failure. This check requires no Python. See its [contract and verification results](docs/tdd-cli-binary.md).
-
-API tests were written by an independent agent before implementation. RED evidence and SHA256 hashes are recorded in `docs/tdd-*.md`. Additional regressions found during independent review were recorded separately before fixes.
-
-GitHub unit tests use a fake HTTP transport without real secrets. The component integration connects the actual CLI, HTTP handlers, service, and GitHub client. The [live E2E test](integration/cli/testdata/github/README.md) runs the real binary against five private GitHub fixtures and checks discovery filters, HTTP inputs, and CLI dry-run. A separate Flux check runs an isolated Kubernetes envtest environment and real upstream reconcilers; see [compatibility evidence and boundaries](docs/flux-compatibility.md).
-
-Completed implementation checks are recorded in [docs/verification.md](docs/verification.md). Deferred work is tracked in [docs/TODO.md](docs/TODO.md).
+Use `mise tasks` to list all available tasks and their descriptions.
