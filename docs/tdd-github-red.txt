@@ -1,0 +1,76 @@
+--- FAIL: TestGitHubAppJWTInstallationOwnerAndTokenReuse (0.05s)
+    app_test.go:110: credential loading is not implemented
+--- FAIL: TestGitHubAppRejectsWrongInstallationEvenWhenCatalogEmpty (0.03s)
+    app_test.go:150: credential loading is not implemented
+--- FAIL: TestGitHubAppConcurrentRefreshUsesOneExchange (0.17s)
+    app_test.go:170: credential loading is not implemented
+--- FAIL: TestGitHubAppUnauthorizedTokenRefreshesOnce (0.05s)
+    app_test.go:219: credential loading is not implemented
+--- FAIL: TestPATOrganizationPaginationAndRequestReuse (0.00s)
+    client_test.go:75: credential loading is not implemented
+--- FAIL: TestPATPersonalCatalogIncludesPublicAndAccessiblePrivate (0.00s)
+    client_test.go:126: credential loading is not implemented
+--- FAIL: TestPATPrivateCatalogErrorsAreNotPublicFallback (0.00s)
+    --- FAIL: TestPATPrivateCatalogErrorsAreNotPublicFallback/401 (0.00s)
+        client_test.go:155: credential loading is not implemented
+    --- FAIL: TestPATPrivateCatalogErrorsAreNotPublicFallback/403 (0.00s)
+        client_test.go:155: credential loading is not implemented
+    --- FAIL: TestPATPrivateCatalogErrorsAreNotPublicFallback/404 (0.00s)
+        client_test.go:155: credential loading is not implemented
+--- FAIL: TestIncompletePagesNeverReturnPartialCatalogs (0.00s)
+    --- FAIL: TestIncompletePagesNeverReturnPartialCatalogs/denied (0.00s)
+        client_test.go:189: credential loading is not implemented
+    --- FAIL: TestIncompletePagesNeverReturnPartialCatalogs/malformed_JSON (0.00s)
+        client_test.go:189: credential loading is not implemented
+    --- FAIL: TestIncompletePagesNeverReturnPartialCatalogs/wrong_envelope (0.00s)
+        client_test.go:189: credential loading is not implemented
+    --- FAIL: TestIncompletePagesNeverReturnPartialCatalogs/null_list (0.00s)
+        client_test.go:189: credential loading is not implemented
+--- FAIL: TestMetadataCompletionSkipsArchivedAndForks (0.00s)
+    client_test.go:210: credential loading is not implemented
+--- FAIL: TestMalformedMandatoryMetadataFailsClosed (0.00s)
+    --- FAIL: TestMalformedMandatoryMetadataFailsClosed/id (0.00s)
+        client_test.go:237: credential loading is not implemented
+    --- FAIL: TestMalformedMandatoryMetadataFailsClosed/name (0.00s)
+        client_test.go:237: credential loading is not implemented
+    --- FAIL: TestMalformedMandatoryMetadataFailsClosed/owner (0.00s)
+        client_test.go:237: credential loading is not implemented
+    --- FAIL: TestMalformedMandatoryMetadataFailsClosed/archived (0.00s)
+        client_test.go:237: credential loading is not implemented
+    --- FAIL: TestMalformedMandatoryMetadataFailsClosed/fork (0.00s)
+        client_test.go:237: credential loading is not implemented
+    --- FAIL: TestMalformedMandatoryMetadataFailsClosed/topics (0.00s)
+        client_test.go:237: credential loading is not implemented
+--- FAIL: TestPaginationRejectsUntrustedHostAndCycles (0.00s)
+    --- FAIL: TestPaginationRejectsUntrustedHostAndCycles/<https://evil.example/steal>;_rel="next" (0.00s)
+        client_test.go:263: credential loading is not implemented
+    --- FAIL: TestPaginationRejectsUntrustedHostAndCycles/<http://api.github.com/orgs/acme/repos>;_rel="next" (0.00s)
+        client_test.go:263: credential loading is not implemented
+    --- FAIL: TestPaginationRejectsUntrustedHostAndCycles/<https://api.github.com/orgs/acme/repos?type=all&per_page=100&page=1>;_rel="next" (0.00s)
+        client_test.go:263: credential loading is not implemented
+--- FAIL: TestRedirectCannotSendCredentialsToAnotherHost (0.00s)
+    client_test.go:283: credential loading is not implemented
+--- FAIL: TestSourceIsolationAndUnknownCredentialPreflight (0.00s)
+    client_test.go:291: credential loading is not implemented
+--- FAIL: TestTransientRetryAndRateLimitDelay (0.00s)
+    --- FAIL: TestTransientRetryAndRateLimitDelay/503 (0.00s)
+        client_test.go:324: credential loading is not implemented
+    --- FAIL: TestTransientRetryAndRateLimitDelay/429 (0.00s)
+        client_test.go:324: credential loading is not implemented
+--- FAIL: TestCanceledContextStopsBeforeRequest (0.00s)
+    client_test.go:351: credential loading is not implemented
+--- FAIL: TestRateLimitCooldownIsSharedAcrossScans (0.00s)
+    --- FAIL: TestRateLimitCooldownIsSharedAcrossScans/retry-after (0.00s)
+        client_test.go:369: credential loading is not implemented
+    --- FAIL: TestRateLimitCooldownIsSharedAcrossScans/reset (0.00s)
+        client_test.go:369: credential loading is not implemented
+--- FAIL: TestRetriesAreBoundedAndTransportCancellationIsPreserved (0.00s)
+    --- FAIL: TestRetriesAreBoundedAndTransportCancellationIsPreserved/persistent_upstream_failure (0.00s)
+        client_test.go:399: credential loading is not implemented
+    --- FAIL: TestRetriesAreBoundedAndTransportCancellationIsPreserved/in-flight_cancellation (0.00s)
+        client_test.go:417: credential loading is not implemented
+--- FAIL: TestCredentialsResolveReferencesAndExposeOnlyNames (0.00s)
+    credentials_test.go:31: credential loading is not implemented
+FAIL
+FAIL	github.com/vterdunov/flux-repository-discovery/internal/github	0.317s
+FAIL

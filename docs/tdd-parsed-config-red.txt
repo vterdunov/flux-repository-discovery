@@ -1,0 +1,47 @@
+--- FAIL: TestParseSnapshotsCompleteDocumentWithoutLosingCaseOrOrder (0.00s)
+    prepared_test.go:59: prepared configuration API not implemented
+--- FAIL: TestPreparedAccessorsReturnIndependentSnapshots (0.00s)
+    prepared_test.go:83: prepared configuration API not implemented
+--- FAIL: TestParseRejectsInvalidProgrammaticDocumentAtConfigBoundary (0.00s)
+    --- FAIL: TestParseRejectsInvalidProgrammaticDocumentAtConfigBoundary/zero_version (0.00s)
+        prepared_test.go:132: invalid declaration must fail in config with field path "version": prepared configuration API not implemented
+    --- FAIL: TestParseRejectsInvalidProgrammaticDocumentAtConfigBoundary/empty_listen (0.00s)
+        prepared_test.go:132: invalid declaration must fail in config with field path "server.listen": prepared configuration API not implemented
+    --- FAIL: TestParseRejectsInvalidProgrammaticDocumentAtConfigBoundary/zero_interval (0.00s)
+        prepared_test.go:132: invalid declaration must fail in config with field path "scan.interval": prepared configuration API not implemented
+    --- FAIL: TestParseRejectsInvalidProgrammaticDocumentAtConfigBoundary/zero_timeout (0.00s)
+        prepared_test.go:132: invalid declaration must fail in config with field path "scan.timeout": prepared configuration API not implemented
+    --- FAIL: TestParseRejectsInvalidProgrammaticDocumentAtConfigBoundary/missing_source (0.00s)
+        prepared_test.go:132: invalid declaration must fail in config with field path "filters.apps.sources": prepared configuration API not implemented
+    --- FAIL: TestParseRejectsInvalidProgrammaticDocumentAtConfigBoundary/bad_regexp (0.00s)
+        prepared_test.go:132: invalid declaration must fail in config with field path "filters.apps.include[0].nameRegex": prepared configuration API not implemented
+    --- FAIL: TestParseRejectsInvalidProgrammaticDocumentAtConfigBoundary/empty_all (0.00s)
+        prepared_test.go:132: invalid declaration must fail in config with field path "filters.apps.include[0].topics.all": prepared configuration API not implemented
+    --- FAIL: TestParseRejectsInvalidProgrammaticDocumentAtConfigBoundary/empty_repository_list (0.00s)
+        prepared_test.go:132: invalid declaration must fail in config with field path "filters.apps.include[0].repositories": prepared configuration API not implemented
+--- FAIL: TestRuntimePreparationFreezesBindingsAndPreservesDeclaredDocument (0.00s)
+    prepared_test.go:144: prepared configuration API not implemented
+--- FAIL: TestRuntimeRejectsUnknownCredentialBeforeExecutionAndKeepsOriginal (0.00s)
+    prepared_test.go:195: prepared configuration API not implemented
+--- FAIL: TestZeroPreparedValuesAreRejectedAtPreparationBoundaries (0.00s)
+    prepared_test.go:238: prepared configuration API not implemented
+--- FAIL: TestPreparedConfigurationCanBeSharedWithIndependentSnapshots (0.00s)
+    prepared_test.go:255: prepared configuration API not implemented
+--- FAIL: TestParserRejectsNullsAliasesAndOversizeBeforePublication (0.00s)
+    --- FAIL: TestParserRejectsNullsAliasesAndOversizeBeforePublication/null_sources (0.00s)
+        regression_test.go:47: invalid input accepted or field path missing: prepared configuration API not implemented
+    --- FAIL: TestParserRejectsNullsAliasesAndOversizeBeforePublication/null_topic (0.00s)
+        regression_test.go:47: invalid input accepted or field path missing: prepared configuration API not implemented
+    --- FAIL: TestParserRejectsNullsAliasesAndOversizeBeforePublication/alias (0.00s)
+        regression_test.go:47: invalid input accepted or field path missing: prepared configuration API not implemented
+    --- FAIL: TestParserRejectsNullsAliasesAndOversizeBeforePublication/interval_overflow (0.00s)
+        regression_test.go:47: invalid input accepted or field path missing: prepared configuration API not implemented
+    --- FAIL: TestParserRejectsNullsAliasesAndOversizeBeforePublication/empty_listen (0.00s)
+        regression_test.go:47: invalid input accepted or field path missing: prepared configuration API not implemented
+FAIL
+FAIL	github.com/vterdunov/flux-repository-discovery/internal/config	0.006s
+--- FAIL: TestEvaluatePreparedFilterSurvivesSourceAndPredicateInputMutation (0.00s)
+    prepared_test.go:47: prepared configuration API not implemented
+FAIL
+FAIL	github.com/vterdunov/flux-repository-discovery/internal/discovery	0.006s
+FAIL

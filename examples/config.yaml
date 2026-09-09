@@ -1,0 +1,31 @@
+version: 1
+server:
+  listen: ":8080"
+scan:
+  interval: 10m
+  timeout: 2m
+
+sources:
+  company:
+    owners: [acme]
+    credential: company-app
+  personal:
+    owners: [octocat]
+    credential: personal-token
+
+filters:
+  applications:
+    sources: [company]
+    include:
+      - topics:
+          all: [gitops]
+          any: [backend, worker]
+        nameRegex: '^service-'
+      - repositories: [acme/legacy-api]
+    exclude:
+      - nameRegex: '^service-sandbox-'
+  platform:
+    sources: [company, personal]
+    include:
+      - repositories: [acme/platform, octocat/platform-lab]
+      - nameRegex: '^infra-'

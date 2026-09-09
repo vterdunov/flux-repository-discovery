@@ -1,0 +1,7 @@
+/.cache/
+/bin/
+/credentials.yaml
+/config.yaml
+/.env
+*.test
+coverage.out

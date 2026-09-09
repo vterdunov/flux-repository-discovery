@@ -1,0 +1,8 @@
+--- FAIL: TestPreparedListenRejectsInvalidUTF8AtConfigurationBoundary (0.00s)
+    --- FAIL: TestPreparedListenRejectsInvalidUTF8AtConfigurationBoundary/typed_declaration (0.00s)
+        prepared_regression_test.go:19: non-serializable declaration escaped config parsing: zero=false error=<nil>
+    --- FAIL: TestPreparedListenRejectsInvalidUTF8AtConfigurationBoundary/runtime_override (0.00s)
+        prepared_regression_test.go:29: non-serializable override escaped runtime preparation: zero=false error=<nil>
+FAIL
+FAIL	github.com/vterdunov/flux-repository-discovery/internal/config	0.006s
+FAIL

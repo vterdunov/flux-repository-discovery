@@ -1,0 +1,38 @@
+# Consumer contract only. Provision the HTTP service separately.
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSetInputProvider
+metadata:
+  name: applications
+  namespace: flux-system
+  annotations:
+    fluxcd.controlplane.io/reconcileEvery: "1m"
+spec:
+  type: ExternalService
+  url: http://flux-repository-discovery:8080/inputs/applications
+  insecure: true
+  filter:
+    limit: 10000
+---
+apiVersion: fluxcd.controlplane.io/v1
+kind: ResourceSet
+metadata:
+  name: application-repositories
+  namespace: flux-system
+spec:
+  inputsFrom:
+    - kind: ResourceSetInputProvider
+      name: applications
+  resources:
+    - apiVersion: source.toolkit.fluxcd.io/v1
+      kind: GitRepository
+      metadata:
+        name: 'repo-<< inputs.id >>'
+        namespace: flux-system
+      spec:
+        interval: 10m
+        url: 'https://github.com/<< inputs.fullName >>.git'
+        ref:
+          branch: main # Choose the branch used by this filter's repositories.
+        # Configure source-controller credentials separately for private repos:
+        # secretRef:
+        #   name: github-clone

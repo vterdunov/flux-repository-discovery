@@ -1,0 +1,27 @@
+--- FAIL: TestJSONFieldAliasesCannotOverrideRepositoryIdentity (0.00s)
+    --- FAIL: TestJSONFieldAliasesCannotOverrideRepositoryIdentity/"id":1,"ID":2 (0.00s)
+        regression_test.go:31: expected complete failure without partial repositories: {Repositories:[{ID:2 Owner:acme Name:repo Topics:[] Archived:false Fork:false}] Err:<nil>}
+--- FAIL: TestSkippedRepositoryCannotHideConflictingDuplicateID (0.00s)
+    --- FAIL: TestSkippedRepositoryCannotHideConflictingDuplicateID/archived (0.00s)
+        regression_test.go:58: expected complete failure without partial repositories: {Repositories:[{ID:1 Owner:octocat Name:repo Topics:[gitops] Archived:false Fork:false}] Err:<nil>}
+    --- FAIL: TestSkippedRepositoryCannotHideConflictingDuplicateID/fork (0.00s)
+        regression_test.go:58: expected complete failure without partial repositories: {Repositories:[{ID:1 Owner:octocat Name:repo Topics:[gitops] Archived:false Fork:false}] Err:<nil>}
+--- FAIL: TestScopedOrganizationCatalogCannotSilentlyDiscardForeignOwner (0.00s)
+    regression_test.go:71: expected complete failure without partial repositories: {Repositories:[] Err:<nil>}
+--- FAIL: TestPaginationCannotNarrowVisibilityOrSkipPages (0.00s)
+    --- FAIL: TestPaginationCannotNarrowVisibilityOrSkipPages/https://api.github.com/orgs/acme/repos?type=public&per_page=100&page=2 (0.00s)
+        regression_test.go:93: expected complete failure without partial repositories: {Repositories:[{ID:1 Owner:acme Name:repo Topics:[gitops] Archived:false Fork:false}] Err:<nil>}
+    --- FAIL: TestPaginationCannotNarrowVisibilityOrSkipPages/https://api.github.com/orgs/acme/repos?type=all&per_page=20&page=2 (0.00s)
+        regression_test.go:93: expected complete failure without partial repositories: {Repositories:[{ID:1 Owner:acme Name:repo Topics:[gitops] Archived:false Fork:false}] Err:<nil>}
+    --- FAIL: TestPaginationCannotNarrowVisibilityOrSkipPages/https://api.github.com/orgs/acme/repos?type=all&per_page=100&page=3 (0.00s)
+        regression_test.go:93: expected complete failure without partial repositories: {Repositories:[{ID:1 Owner:acme Name:repo Topics:[gitops] Archived:false Fork:false}] Err:<nil>}
+--- FAIL: TestExtremeRateResetCannotOverflowWaitDuration (0.00s)
+    regression_test.go:129: positive far-future cooldown overflowed to -2562047h47m16.853s
+--- FAIL: TestSlowCredentialCannotConsumeHealthySourceDeadline (0.00s)
+    regression_test.go:174: independent healthy source lost its scan budget: {Repositories:[] Err:context deadline exceeded}
+--- FAIL: TestMalformedAppCatalogAndTokenResponsesFailClosed (0.09s)
+    --- FAIL: TestMalformedAppCatalogAndTokenResponsesFailClosed/foreign_repository (0.00s)
+        regression_test.go:222: expected complete failure without partial repositories: {Repositories:[] Err:<nil>}
+FAIL
+FAIL	github.com/vterdunov/flux-repository-discovery/internal/github	0.100s
+FAIL

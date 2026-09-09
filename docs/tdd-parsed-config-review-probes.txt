@@ -1,0 +1,3 @@
+invalid UTF8 parse=<nil> marshal=jsontext: invalid UTF-8 within "/server/listen" after offset 32
+large typed doc parse=<nil> marshal=<nil> bytes=1092150 limit=1048576 decode=configuration exceeds size limit
+empty doc parse=<nil> configZero=false prepare=<nil> runtimeZero=false marshal=<nil> wire={"version":1,"server":{"listen":":8080"},"scan":{"interval":"1m0s","timeout":"1s"},"sources":{},"filters":{}}

@@ -1,0 +1,10 @@
+--- FAIL: TestCrossCredentialSkippedObservationInvalidatesConflictingSources (0.00s)
+    --- FAIL: TestCrossCredentialSkippedObservationInvalidatesConflictingSources/archived (0.00s)
+        final_regression_test.go:55: expected complete failure without partial repositories: {Repositories:[{ID:1 Owner:acme Name:repo Topics:[gitops] Archived:false Fork:false}] Err:<nil>}
+    --- FAIL: TestCrossCredentialSkippedObservationInvalidatesConflictingSources/fork (0.00s)
+        final_regression_test.go:55: expected complete failure without partial repositories: {Repositories:[{ID:1 Owner:acme Name:repo Topics:[gitops] Archived:false Fork:false}] Err:<nil>}
+--- FAIL: TestCanceledTokenRefreshLeaderDoesNotCancelLiveWaiter (0.09s)
+    final_regression_test.go:117: live waiter inherited another scan's cancellation: context canceled
+FAIL
+FAIL	github.com/vterdunov/flux-repository-discovery/internal/github	0.096s
+FAIL

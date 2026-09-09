@@ -1,0 +1,8 @@
+--- FAIL: TestParsePreservesCanonicalDocumentSizeLimit (0.03s)
+    --- FAIL: TestParsePreservesCanonicalDocumentSizeLimit/over_limit (0.02s)
+        prepared_size_test.go:51: oversize declaration escaped config boundary: zero=false error=<nil>
+--- FAIL: TestDecodeRejectsCanonicalExpansionBeforeReturningPreparedConfig (0.06s)
+    prepared_size_test.go:73: canonical expansion escaped config boundary: inputBytes=1040077 zero=false error=<nil>
+FAIL
+FAIL	github.com/vterdunov/flux-repository-discovery/internal/config	0.094s
+FAIL
