@@ -28,22 +28,30 @@ The service periodically scans the configured GitHub sources, applies each named
 
 ## Getting started
 
-Install [mise](https://mise.jdx.dev/). Go and golangci-lint versions are pinned in [mise.toml](mise.toml).
+Run the prebuilt image `ghcr.io/vterdunov/flux-repository-discovery:latest` with Docker. See [Container image and CI](#container-image-and-ci) for available tags and platforms. For private GHCR packages, [authenticate to the registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry) before pulling the image.
+
+Create `config.yaml` and `credentials.yaml` in your current directory using the [minimal PAT configuration below](#configuration). Replace `acme` with your GitHub owner and export `FRD_COMPANY_GITHUB_TOKEN` with a PAT that can read the intended repositories. The following command forwards that environment variable and mounts both files read-only:
 
 ```sh
-mise install
-mise run build
-bin/flux-repository-discovery version
-bin/flux-repository-discovery validate --config examples/config.yaml
+docker run --rm --name flux-repository-discovery \
+  --publish 127.0.0.1:8080:8080 \
+  --env FRD_COMPANY_GITHUB_TOKEN \
+  --mount "type=bind,src=$PWD/config.yaml,dst=/config.yaml,readonly" \
+  --mount "type=bind,src=$PWD/credentials.yaml,dst=/credentials.yaml,readonly" \
+  ghcr.io/vterdunov/flux-repository-discovery:latest serve \
+  --config /config.yaml \
+  --credentials-file /credentials.yaml
 ```
 
-Prepare the main configuration and the server's credential references using [config.yaml](examples/config.yaml) and [credentials.yaml](examples/credentials.yaml). Replace the owners, App/installation IDs, and paths with your own values. Supply secrets through the referenced files or environment variables.
+Mounted files must be readable by the image's user (`65532:65532`). For GitHub Apps or file-based tokens, use the full [configuration](examples/config.yaml) and [credentials](examples/credentials.yaml) examples and mount secret files at the paths referenced inside the container. See the [Docker run reference](https://docs.docker.com/reference/cli/docker/container/run/) for mount and environment options.
+
+Once the first scan completes, query the selected repositories from another terminal:
 
 ```sh
-bin/flux-repository-discovery serve \
-  --config config.yaml \
-  --credentials-file credentials.yaml
+curl --fail-with-body http://localhost:8080/inputs/applications
 ```
+
+To connect Flux Operator, deploy the image as an HTTP service reachable from the cluster and point the provider in the [Flux example](examples/flux.yaml) at its `/inputs/applications` endpoint.
 
 The first scan starts immediately. Each subsequent scan starts `scan.interval` after the previous scan finishes. The default interval is 10 minutes, with a 2-minute timeout for the entire scan. SIGINT/SIGTERM cancel scanning and shut down the HTTP server.
 
@@ -113,18 +121,18 @@ Discovery credentials are not passed to Flux. Configure source-controller authen
 
 ## Dry-run
 
-Edit a local candidate configuration and submit it to the running service:
+Edit a local `candidate.yaml` and submit it to the container started above. The CLI container shares the service container's network so it can reach the HTTP endpoint at `localhost:8080`:
 
 ```sh
-bin/flux-repository-discovery dry-run \
-  --config candidate.yaml \
+docker run --rm \
+  --network container:flux-repository-discovery \
+  --mount "type=bind,src=$PWD/candidate.yaml,dst=/candidate.yaml,readonly" \
+  ghcr.io/vterdunov/flux-repository-discovery:latest dry-run \
+  --config /candidate.yaml \
   --against http://localhost:8080
-
-bin/flux-repository-discovery dry-run \
-  --config candidate.yaml \
-  --against http://localhost:8080 \
-  --output json --detailed-exitcode
 ```
+
+Add `--output json --detailed-exitcode` to get a JSON report and exit code 3 when changes are found. For a service deployed elsewhere, set `--against` to its reachable URL and adjust the container network accordingly.
 
 The CLI makes no GitHub requests and loads no credentials. Local server environment overrides are not applied to the candidate. The server uses its current credentials and environment overrides.
 
@@ -173,6 +181,23 @@ The example explicitly selects the `main` branch; adjust the template for your r
 The v1 HTTP API has no authentication. Separate middleware hooks are available for inputs and operator operations. Future CLI login through Google Workspace/OIDC is tracked in [docs/TODO.md](docs/TODO.md).
 
 ## Development and verification
+
+Install [mise](https://mise.jdx.dev/) to build from source. Development tool versions are pinned in [mise.toml](mise.toml).
+
+```sh
+mise install
+mise run build
+bin/flux-repository-discovery version
+bin/flux-repository-discovery validate --config examples/config.yaml
+```
+
+To run the local binary with your configuration and credentials:
+
+```sh
+bin/flux-repository-discovery serve \
+  --config config.yaml \
+  --credentials-file credentials.yaml
+```
 
 The only external runtime dependency is `go.yaml.in/yaml/v3`. Routing, CLI, HTTP, JSON, regular expressions, cryptography, and test tooling use the standard library.
 
