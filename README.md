@@ -93,7 +93,7 @@ The first scan starts immediately. Each subsequent scan starts `scan.interval` a
 
 [CI](.github/workflows/ci.yaml) runs `mise run check` and a [live GitHub discovery E2E test](integration/cli/testdata/github/README.md), then builds `linux/amd64` and `linux/arm64` images on PRs and pushes to `main`. The live test requires the `FRD_E2E_GITHUB_TOKEN` Actions secret and is skipped for fork and Dependabot PRs. The final stage is `gcr.io/distroless/static-debian13:nonroot`.
 
-Registry: `ghcr.io/vterdunov/flux-repository-discovery`. Version tags such as `v0.1.0` publish `0.1.0`; stable releases also update `latest`. PRs publish `pr-<number>` and `main` publishes `main`. Both development paths publish `sha-<full-commit>`; PR images use the tested merge commit. Fork and Dependabot PRs build without publishing.
+Registry: `ghcr.io/vterdunov/flux-repository-discovery`. Version tags such as `0.1.0` publish `0.1.0`; stable releases also update `latest`. PRs publish `pr-<number>` and `main` publishes `main`. Both development paths publish `sha-<full-commit>`; PR images use the tested merge commit. Fork and Dependabot PRs build without publishing.
 
 [Releases](https://github.com/vterdunov/flux-repository-discovery/releases) also contain CLI archives for Linux/macOS on amd64/arm64, SHA256 checksums, and release notes. GoReleaser builds the release binaries and packages the same Linux binaries into the container. Every PR checks release packaging and the container's version before a version tag can publish. See the [release process](docs/releases.md) for tagging, downloads, and recovery.
 
