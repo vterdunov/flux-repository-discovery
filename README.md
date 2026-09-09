@@ -4,6 +4,24 @@ An HTTP service written in Go that discovers github.com repositories, applies na
 
 A source failure returns HTTP 503. A successful scan with no matches returns `{"inputs":[]}`. Partial catalogs and stale results are never served after a failed scan.
 
+## How it works
+
+```mermaid
+flowchart LR
+    github["GitHub repositories"]
+
+    subgraph discovery["flux-repository-discovery"]
+        scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
+        filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
+    end
+
+    github --> scan
+    inputs --> operator["Flux Operator<br/>ExternalService provider"]
+    operator --> resources["ResourceSet<br/>Kubernetes resources"]
+```
+
+The service periodically scans the configured GitHub sources, applies each named filter, and serves the matching repositories as `{"inputs":[...]}`. Flux Operator polls the filter's HTTP endpoint through a `ResourceSetInputProvider` of type `ExternalService`. A `ResourceSet` uses these inputs to create Kubernetes resources, such as the `GitRepository` resources in the [Flux example](examples/flux.yaml).
+
 ## Getting started
 
 Install [mise](https://mise.jdx.dev/). Go and golangci-lint versions are pinned in [mise.toml](mise.toml).
