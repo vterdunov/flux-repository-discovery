@@ -7,6 +7,33 @@ A source failure returns HTTP 503. A successful scan with no matches returns `{"
 ## How it works
 
 ```mermaid
+---
+config:
+  theme: base
+  htmlLabels: false
+  themeCSS: |
+    .node rect { rx: 8px; ry: 8px; stroke-width: 1px; filter: drop-shadow(0px 3px 1px #3c383680) drop-shadow(0px 9px 7px #3c383659); }
+    .cluster rect { rx: 12px; ry: 12px; filter: drop-shadow(0px 4px 2px #28282866) drop-shadow(0px 9px 9px #28282859); }
+  themeVariables:
+    fontFamily: "system-ui, sans-serif"
+    fontSize: "14px"
+    primaryColor: "#d2b98b"
+    primaryTextColor: "#3c3836"
+    primaryBorderColor: "#8c755e"
+    lineColor: "#8c755e"
+    textColor: "#3c3836"
+    clusterBkg: "#ddc9a4"
+    clusterBorder: "#8c755e"
+    titleColor: "#3c3836"
+  flowchart:
+    nodeSpacing: 16
+    rankSpacing: 50
+    padding: 20
+    diagramPadding: 48
+    subGraphTitleMargin:
+      top: 6
+      bottom: 8
+---
 flowchart TB
     github["GitHub repositories"]
 
@@ -22,6 +49,13 @@ flowchart TB
     end
 
     github --> discovery --> flux
+
+    classDef source fill:#e0c89b,stroke:#8c755e,color:#3c3836
+    classDef output fill:#c2c18d,stroke:#8c755e,color:#3c3836
+    classDef consumer fill:#cca98d,stroke:#8c755e,color:#3c3836
+    class github source
+    class inputs output
+    class provider,resources consumer
 ```
 
 The service periodically scans the configured GitHub sources, applies each named filter, and serves the matching repositories as `{"inputs":[...]}`. Flux Operator polls the filter's HTTP endpoint through a `ResourceSetInputProvider` of type `ExternalService`. A `ResourceSet` uses these inputs to create Kubernetes resources, such as the `GitRepository` resources in the [Flux example](examples/flux.yaml).
