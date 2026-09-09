@@ -1,6 +1,7 @@
 [tools]
 go = "1.27.1"
 golangci-lint = "2.13.2"
+actionlint = "1.7.12"
 
 [env]
 GOCACHE = "{{config_root}}/.cache/go-build"
@@ -16,6 +17,10 @@ run = "go test -race ./..."
 [tasks.lint]
 run = "golangci-lint run --build-tags=integration ./..."
 
+[tasks.lint-ci]
+description = "Validate GitHub Actions workflows"
+run = "actionlint"
+
 [tasks.build]
 run = "go build -o bin/flux-repository-discovery ./cmd/flux-repository-discovery"
 
@@ -24,4 +29,4 @@ description = "Build and test the real CLI/HTTP process, including SIGTERM (Linu
 run = "go test -race -tags=integration -count=1 -timeout=2m ./integration/cli"
 
 [tasks.check]
-depends = ["test", "race", "lint", "build", "test-cli"]
+depends = ["test", "race", "lint", "lint-ci", "build", "test-cli"]
