@@ -6,6 +6,5 @@ ARG TARGETPLATFORM
 COPY ${TARGETPLATFORM}/flux-repository-discovery /flux-repository-discovery
 
 USER 65532:65532
-EXPOSE 8080
 ENTRYPOINT ["/flux-repository-discovery"]
 CMD ["serve"]
