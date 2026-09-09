@@ -1,6 +1,5 @@
 # syntax=docker/dockerfile:1
 
-# GoReleaser supplies the same Linux binaries that are attached to the release.
 FROM gcr.io/distroless/static-debian13:nonroot
 
 ARG TARGETPLATFORM
