@@ -61,6 +61,9 @@ A small warm shadow and gently rounded nodes.
 ---
 config:
   theme: base
+  themeCSS: |
+    .node rect { rx: 6px; ry: 6px; filter: drop-shadow(0px 2px 3px #3c38362e); }
+    .cluster rect { rx: 10px; ry: 10px; }
   themeVariables:
     fontFamily: "system-ui, sans-serif"
     fontSize: "14px"
@@ -102,11 +105,6 @@ flowchart TB
     class github source
     class inputs output
     class provider,resources consumer
-
-    classDef elevated rx:6px,ry:6px,filter:drop-shadow(0px 2px 3px #3c38362e)
-    class github,scan,filters,inputs,provider,resources elevated
-    style discovery rx:10px,ry:10px
-    style flux rx:10px,ry:10px
 ```
 
 ### 7B. Raised cards
@@ -117,6 +115,9 @@ More depth on the nodes and a soft shadow under each group.
 ---
 config:
   theme: base
+  themeCSS: |
+    .node rect { rx: 8px; ry: 8px; stroke-width: 1px; filter: drop-shadow(0px 4px 4px #3c383638); }
+    .cluster rect { rx: 12px; ry: 12px; filter: drop-shadow(0px 6px 8px #3c383633); }
   themeVariables:
     fontFamily: "system-ui, sans-serif"
     fontSize: "14px"
@@ -158,11 +159,6 @@ flowchart TB
     class github source
     class inputs output
     class provider,resources consumer
-
-    classDef elevated rx:8px,ry:8px,stroke-width:1px,filter:drop-shadow(0px 4px 4px #3c383638)
-    class github,scan,filters,inputs,provider,resources elevated
-    style discovery rx:12px,ry:12px,filter:drop-shadow(0px 6px 8px #3c383633)
-    style flux rx:12px,ry:12px,filter:drop-shadow(0px 6px 8px #3c383633)
 ```
 
 ### 7C. Soft surfaces
@@ -173,6 +169,9 @@ Rounder corners and borderless surfaces defined by gentle shadows.
 ---
 config:
   theme: base
+  themeCSS: |
+    .node rect { rx: 14px; ry: 14px; stroke-width: 0px; filter: drop-shadow(0px 3px 5px #3c383633); }
+    .cluster rect { rx: 18px; ry: 18px; stroke-width: 0px; filter: drop-shadow(0px 7px 10px #3c38362e); }
   themeVariables:
     fontFamily: "system-ui, sans-serif"
     fontSize: "14px"
@@ -214,11 +213,6 @@ flowchart TB
     class github source
     class inputs output
     class provider,resources consumer
-
-    classDef elevated rx:14px,ry:14px,stroke-width:0px,filter:drop-shadow(0px 3px 5px #3c383633)
-    class github,scan,filters,inputs,provider,resources elevated
-    style discovery rx:18px,ry:18px,stroke-width:0px,filter:drop-shadow(0px 7px 10px #3c38362e)
-    style flux rx:18px,ry:18px,stroke-width:0px,filter:drop-shadow(0px 7px 10px #3c38362e)
 ```
 
 [Back to the project overview](../README.md#how-it-works).
