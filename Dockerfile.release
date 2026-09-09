@@ -1,0 +1,10 @@
+# syntax=docker/dockerfile:1
+
+FROM gcr.io/distroless/static-debian13:nonroot
+
+ARG TARGETPLATFORM
+COPY ${TARGETPLATFORM}/flux-repository-discovery /flux-repository-discovery
+
+USER 65532:65532
+ENTRYPOINT ["/flux-repository-discovery"]
+CMD ["serve"]

@@ -1,8 +1,11 @@
 # flux-repository-discovery
 
-An HTTP service written in Go that discovers github.com repositories, applies named filters, and serves JSON for Flux Operator ExternalService. Supports organizations, personal accounts, private repositories, PATs, and GitHub Apps.
+Discovers GitHub repositories, filters them by topics, names and regular expressions, and provides inputs for Flux Operator.
 
-A source failure returns HTTP 503. A successful scan with no matches returns `{"inputs":[]}`. Partial catalogs and stale results are never served after a failed scan.
+Use cases:
+
+- **Automatic onboarding:** create a Flux `GitRepository` for every repository with the `gitops` topic.
+- **Environment selection:** feed separate production and staging `ResourceSet`s with repositories selected by their topics.
 
 ## How it works
 
@@ -39,8 +42,8 @@ flowchart TB
 
     subgraph discovery["flux-repository-discovery"]
         direction LR
-        scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
-        filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
+        scan["Periodic scan"] --> filters["Filters"]
+        filters --> inputs["Repository list<br/>as Flux Operator inputs"]
     end
 
     subgraph flux["Flux Operator"]
@@ -62,7 +65,7 @@ The service periodically scans the configured GitHub sources, applies each named
 
 ## Getting started
 
-Run the prebuilt image `ghcr.io/vterdunov/flux-repository-discovery:latest` with Docker. See [Container image and CI](#container-image-and-ci) for available tags and platforms. For private GHCR packages, [authenticate to the registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry) before pulling the image.
+Run the prebuilt image `ghcr.io/vterdunov/flux-repository-discovery:latest` with Docker. See [Container image](#container-image) for available platforms and the registry link. For private GHCR packages, [authenticate to the registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry) before pulling the image.
 
 Create `config.yaml` and `credentials.yaml` in your current directory using the [minimal PAT configuration below](#configuration). Replace `acme` with your GitHub owner and export `FRD_COMPANY_GITHUB_TOKEN` with a PAT that can read the intended repositories. The following command forwards that environment variable and mounts both files read-only:
 
@@ -89,11 +92,13 @@ To connect Flux Operator, deploy the image as an HTTP service reachable from the
 
 The first scan starts immediately. Each subsequent scan starts `scan.interval` after the previous scan finishes. The default interval is 10 minutes, with a 2-minute timeout for the entire scan. SIGINT/SIGTERM cancel scanning and shut down the HTTP server.
 
-## Container image and CI
+## Container image
 
-[CI](.github/workflows/ci.yaml) runs `mise run check` and a [live GitHub discovery E2E test](integration/cli/testdata/github/README.md), then builds `linux/amd64` and `linux/arm64` images on PRs and pushes to `main`. The live test requires the `FRD_E2E_GITHUB_TOKEN` Actions secret and is skipped for fork and Dependabot PRs. The final stage is `gcr.io/distroless/static-debian13:nonroot`.
+Images are available for `linux/amd64` and `linux/arm64` in [GHCR](https://github.com/users/vterdunov/packages/container/package/flux-repository-discovery):
 
-Registry: `ghcr.io/vterdunov/flux-repository-discovery`. PRs publish `pr-<number>`; `main` publishes `main` and `latest`. Both publish `sha-<full-commit>`; PR images use the tested merge commit. Fork and Dependabot PRs build without publishing.
+```text
+ghcr.io/vterdunov/flux-repository-discovery
+```
 
 ## Configuration
 
@@ -249,7 +254,7 @@ mise run test-e2e
 mise exec -- bash integration/flux/run.sh
 ```
 
-`check` runs unit tests, the race detector, golangci-lint, actionlint, a build, and the [Go binary test](integration/cli/cli_test.go). The binary test supports Linux/macOS and requires localhost access. It builds current sources into a temporary directory, starts the service without GitHub sources, and checks HTTP, the actual CLI dry-run, and SIGTERM shutdown. Temporary files and child processes are cleaned up on both success and failure. This check requires no Python. See its [contract and verification results](docs/tdd-cli-binary.md).
+`check` runs unit tests, the race detector, golangci-lint, actionlint, GoReleaser configuration validation, a build, and the [Go binary test](integration/cli/cli_test.go). The binary test supports Linux/macOS and requires localhost access. It builds current sources into a temporary directory, starts the service without GitHub sources, and checks HTTP, the actual CLI dry-run, and SIGTERM shutdown. Temporary files and child processes are cleaned up on both success and failure. This check requires no Python. See its [contract and verification results](docs/tdd-cli-binary.md).
 
 API tests were written by an independent agent before implementation. RED evidence and SHA256 hashes are recorded in `docs/tdd-*.md`. Additional regressions found during independent review were recorded separately before fixes.
 

@@ -2,6 +2,7 @@
 go = "1.27.1"
 golangci-lint = "2.13.2"
 actionlint = "1.7.12"
+goreleaser = "2.18.1"
 
 [env]
 GOCACHE = "{{config_root}}/.cache/go-build"
@@ -21,6 +22,14 @@ run = "golangci-lint run --build-tags=integration,e2e ./..."
 description = "Validate GitHub Actions workflows"
 run = "actionlint"
 
+[tasks.lint-release]
+description = "Validate GoReleaser configuration"
+run = "goreleaser check"
+
+[tasks.release-snapshot]
+description = "Build release archives and checksums locally without publishing or Docker"
+run = "goreleaser release --snapshot --clean --skip=publish,docker"
+
 [tasks.build]
 run = "go build -o bin/flux-repository-discovery ./cmd/flux-repository-discovery"
 
@@ -33,4 +42,4 @@ description = "Discover private GitHub fixtures through the real binary (require
 run = "go test -race -tags=e2e -count=1 -v -timeout=8m ./integration/cli"
 
 [tasks.check]
-depends = ["test", "race", "lint", "lint-ci", "build", "test-cli"]
+depends = ["test", "race", "lint", "lint-ci", "lint-release", "build", "test-cli"]
