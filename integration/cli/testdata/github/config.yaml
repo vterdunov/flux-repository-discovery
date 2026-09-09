@@ -1,0 +1,70 @@
+version: 1
+server:
+  listen: 127.0.0.1:0
+scan:
+  interval: 10m
+  timeout: 2m
+sources:
+  personal:
+    owners: [vterdunov]
+    credential: fixtures
+  duplicate:
+    owners: [VTERDUNOV]
+    credential: fixtures
+filters:
+  catalog:
+    sources: [personal]
+    include:
+      - nameRegex: ^frd-e2e-.*$
+  production:
+    sources: [personal]
+    include:
+      - nameRegex: ^frd-e2e-.*$
+        topics:
+          all: [frd-e2e, gitops, production]
+    exclude:
+      - topics:
+          any: [skip-discovery]
+  backends:
+    sources: [personal]
+    include:
+      - topics:
+          all: [FRD-E2E, GITOPS, BACKEND]
+          any: [production, staging]
+    exclude:
+      - topics:
+          all: [skip-discovery]
+  exact:
+    sources: [personal]
+    include:
+      - repositories:
+          - VTERDUNOV/FRD-E2E-API
+          - vterdunov/frd-e2e-worker
+          - vterdunov/frd-e2e-archived
+  regex:
+    sources: [personal]
+    include:
+      - nameRegex: ^frd-e2e-(api|worker)$
+  union:
+    sources: [personal]
+    include:
+      - repositories: [vterdunov/frd-e2e-api]
+      - nameRegex: ^frd-e2e-worker$
+  exclude-exact:
+    sources: [personal]
+    include:
+      - nameRegex: ^frd-e2e-.*$
+    exclude:
+      - repositories:
+          - vterdunov/frd-e2e-excluded
+          - vterdunov/frd-e2e-unmatched
+  empty:
+    sources: [personal]
+    include:
+      - nameRegex: ^frd-e2e-.*$
+        topics:
+          all: [frd-e2e, never-matches]
+  deduplicated:
+    sources: [personal, duplicate]
+    include:
+      - repositories: [vterdunov/frd-e2e-api]

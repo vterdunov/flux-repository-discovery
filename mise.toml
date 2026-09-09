@@ -15,7 +15,7 @@ run = "go test ./..."
 run = "go test -race ./..."
 
 [tasks.lint]
-run = "golangci-lint run --build-tags=integration ./..."
+run = "golangci-lint run --build-tags=integration,e2e ./..."
 
 [tasks.lint-ci]
 description = "Validate GitHub Actions workflows"
@@ -27,6 +27,10 @@ run = "go build -o bin/flux-repository-discovery ./cmd/flux-repository-discovery
 [tasks.test-cli]
 description = "Build and test the real CLI/HTTP process, including SIGTERM (Linux/macOS)"
 run = "go test -race -tags=integration -count=1 -timeout=2m ./integration/cli"
+
+[tasks.test-e2e]
+description = "Discover private GitHub fixtures through the real binary (requires FRD_E2E_GITHUB_TOKEN)"
+run = "go test -race -tags=e2e -count=1 -v -timeout=8m ./integration/cli"
 
 [tasks.check]
 depends = ["test", "race", "lint", "lint-ci", "build", "test-cli"]
