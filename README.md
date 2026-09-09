@@ -4,8 +4,8 @@ Discovers GitHub repositories, filters them by topics, names and regular express
 
 Use cases:
 
-- **Automatic onboarding:** create a Flux `GitRepository` for every repository with the `gitops` topic.
-- **Environment selection:** feed separate production and staging `ResourceSet`s with repositories selected by their topics.
+- **Automatic GitOps onboarding.** Mark application repositories with the `gitops` topic and select them with a topic filter. Flux Operator uses these inputs to create a `GitRepository` for each match, as shown in the [Flux example](examples/flux.yaml). New matching repositories are picked up automatically.
+- **Separate production and staging.** Select repositories with the `production` topic and names matching `^service-`, while excluding sandbox repositories. Feed this selection to a production `ResourceSet` and use a separate filter for staging. Each environment gets its own repository selection and resource template.
 
 ## How it works
 
@@ -60,8 +60,6 @@ flowchart TB
     class inputs output
     class provider,resources consumer
 ```
-
-The service periodically scans the configured GitHub sources, applies each named filter, and serves the matching repositories as `{"inputs":[...]}`. Flux Operator polls the filter's HTTP endpoint through a `ResourceSetInputProvider` of type `ExternalService`. A `ResourceSet` uses these inputs to create Kubernetes resources, such as the `GitRepository` resources in the [Flux example](examples/flux.yaml).
 
 ## Getting started
 
@@ -127,9 +125,7 @@ credentials:
       valueEnv: FRD_COMPANY_GITHUB_TOKEN
 ```
 
-The configuration accepts YAML or JSON. Unknown fields, duplicate keys, invalid references, and ambiguous empty conditions are rejected. Source, filter, and credential names must match `[a-z][a-z0-9-]{0,62}`.
-
-The main file and its normalized JSON representation are each limited to 1 MiB. The `config` package checks these limits before passing prepared configuration to the service.
+The configuration accepts YAML or JSON. Source, filter, and credential names must match `[a-z][a-z0-9-]{0,62}`.
 
 | Setting | Default | Environment variable |
 | --- | --- | --- |
@@ -141,7 +137,7 @@ The main file and its normalized JSON representation are each limited to 1 MiB. 
 
 Explicit CLI path flags take precedence over environment variables. Server settings use this precedence: defaults < file < environment. Sources and filters are configured only through the file. Configuration and secrets are loaded once; the platform restarts the process to apply changes.
 
-Filter semantics:
+### Filter semantics
 
 - Source catalogs are combined and deduplicated by numeric GitHub repository ID.
 - `include` rules are combined with OR. Conditions within one rule are combined with AND.
@@ -152,48 +148,28 @@ Filter semantics:
 - Exact names and topics are compared without case sensitivity. Regular expressions are case-sensitive unless `(?i)` is specified.
 - Conflicting metadata for the same ID causes dependent filters to return an error.
 
-A GitHub App credential represents one installation. Multiple installations require separate credential names. A PAT reads the catalog accessible to its token; for a personal account, the owner's public catalog is combined with repositories accessible to the authenticated user. An App lists its installation's repositories and verifies the installation owner.
+### GitHub access
 
-Fine-grained PATs and Apps require access to the intended repositories with `Metadata: read`. Listing repositories does not require reading their files. Visibility is limited by credential permissions: GitHub may successfully return a smaller accessible catalog after permissions change. The service cannot distinguish that response from a repository disappearing normally. [GitHub repository API](https://docs.github.com/en/rest/repos/repos#list-organization-repositories).
+Give the PAT or GitHub App access to the repositories you want to discover. Fine-grained tokens and Apps need only `Metadata: read`. Each App installation uses a separate credential.
 
-Discovery credentials are not passed to Flux. Configure source-controller authentication separately for cloning private repositories.
+## Safe configuration updates
 
-## Dry-run
+Preview how an edited configuration will affect repository selections before applying it. A dry-run shows which inputs would be added, removed or changed while the current configuration remains active.
 
-Edit a local `candidate.yaml` and submit it to the container started above. The CLI container shares the service container's network so it can reach the HTTP endpoint at `localhost:8080`:
+1. Copy `config.yaml` to `candidate.yaml` and make your changes.
+2. Preview the candidate against the running service:
 
-```sh
-docker run --rm \
-  --network container:flux-repository-discovery \
-  --mount "type=bind,src=$PWD/candidate.yaml,dst=/candidate.yaml,readonly" \
-  ghcr.io/vterdunov/flux-repository-discovery:latest dry-run \
-  --config /candidate.yaml \
-  --against http://localhost:8080
-```
+   ```sh
+   docker run --rm \
+     --network container:flux-repository-discovery \
+     --mount "type=bind,src=$PWD/candidate.yaml,dst=/candidate.yaml,readonly" \
+     ghcr.io/vterdunov/flux-repository-discovery:latest dry-run \
+     --config /candidate.yaml \
+     --against http://localhost:8080
+   ```
 
-Add `--output json --detailed-exitcode` to get a JSON report and exit code 3 when changes are found. For a service deployed elsewhere, set `--against` to its reachable URL and adjust the container network accordingly.
-
-The CLI makes no GitHub requests and loads no credentials. Local server environment overrides are not applied to the candidate. The server uses its current credentials and environment overrides.
-
-The report contains:
-
-- Complete structural differences between declared and effective configurations: `configChanges`, `effectiveChanges`, and `overrides`.
-- Per-filter `added`, `removed`, `changed`, and `unchanged` results, before/after counts, complete proposed `inputs`, and `unmatchedRepositories`.
-- Separate `drift` between published inputs and fresh data evaluated with the current rules.
-- Configuration revisions, the base generation, and the observation time.
-
-Current and proposed rules are evaluated against the same fresh catalog. Every change is shown without truncation. Removing a filter reports that its endpoint will return HTTP 404. If there is no successful baseline generation, drift comparison is marked unavailable.
-
-The preview activates nothing and leaves background scan state unchanged. After reviewing it, replace the active configuration separately and let the platform restart the service. New credential names must first be loaded by the running server. Dry-run does not verify future secrets or environment settings.
-
-| Exit code | Meaning |
-| --- | --- |
-| 0 | Success |
-| 1 | Execution or service error |
-| 2 | Invalid local arguments or configuration |
-| 3 | Success with changes, only with `--detailed-exitcode` |
-
-Errors are written to stderr. `--output json` writes only JSON to stdout. V1 allows one concurrent dry-run, bounded by the current server scan timeout. The CLI limits the request to five minutes and the report to 32 MiB.
+3. Review the added, removed and changed repositories for each filter. Adjust the candidate and repeat the preview if needed.
+4. Apply the reviewed file as the service's active configuration and restart the service.
 
 ## HTTP and Flux
 
@@ -219,45 +195,31 @@ The example explicitly selects the `main` branch; adjust the template for your r
 
 The v1 HTTP API has no authentication. Separate middleware hooks are available for inputs and operator operations. Future CLI login through Google Workspace/OIDC is tracked in [docs/TODO.md](docs/TODO.md).
 
-## Development and verification
+## Development
 
-Install [mise](https://mise.jdx.dev/) to build from source. Development tool versions are pinned in [mise.toml](mise.toml).
+Install the development tools with [mise](https://mise.jdx.dev/):
 
 ```sh
 mise install
+```
+
+Create `config.yaml` and `credentials.yaml` as described in [Configuration](#configuration), then start the service:
+
+```sh
+mise run dev
+```
+
+Build the binary:
+
+```sh
 mise run build
-bin/flux-repository-discovery version
-bin/flux-repository-discovery validate --config examples/config.yaml
 ```
 
-To run the local binary with your configuration and credentials:
+Run tests or the full set of checks:
 
 ```sh
-bin/flux-repository-discovery serve \
-  --config config.yaml \
-  --credentials-file credentials.yaml
-```
-
-The only external runtime dependency is `go.yaml.in/yaml/v3`. Routing, CLI, HTTP, JSON, regular expressions, cryptography, and test tooling use the standard library.
-
-The service and CLI use `encoding/json/v2` and `encoding/json/jsontext`. Response formats, complete diff values, and configuration revisions remain stable. JSON decoding rejects duplicate fields and invalid UTF-8; see the [migration and verification record](docs/jsonv2-migration.md).
-
-The `config` package converts an input `Document` into an immutable `Config` with prepared filters. `Decode` reads file contents and applies defaults; `Parse` accepts a fully populated Go document. `Prepare` binds configuration to server environment settings and credential names, returning a `Runtime` for `service.New`. Dry-run uses the same captured server context. Accessors return copies of mutable collections. Regular expressions are compiled during parsing and reused during filtering. Zero `Config`, `Runtime`, and `Filter` values are rejected at preparation and execution boundaries. See the [refactor verification record](docs/verification.md#prepared-configuration-refactor).
-
-```sh
+mise run test
 mise run check
-# Run only the real binary, HTTP, CLI, and SIGTERM test:
-mise run test-cli
-# Live discovery against private GitHub fixtures (requires FRD_E2E_GITHUB_TOKEN):
-mise run test-e2e
-# Optional integration with a real, isolated Flux Operator:
-mise exec -- bash integration/flux/run.sh
 ```
 
-`check` runs unit tests, the race detector, golangci-lint, actionlint, GoReleaser configuration validation, a build, and the [Go binary test](integration/cli/cli_test.go). The binary test supports Linux/macOS and requires localhost access. It builds current sources into a temporary directory, starts the service without GitHub sources, and checks HTTP, the actual CLI dry-run, and SIGTERM shutdown. Temporary files and child processes are cleaned up on both success and failure. This check requires no Python. See its [contract and verification results](docs/tdd-cli-binary.md).
-
-API tests were written by an independent agent before implementation. RED evidence and SHA256 hashes are recorded in `docs/tdd-*.md`. Additional regressions found during independent review were recorded separately before fixes.
-
-GitHub unit tests use a fake HTTP transport without real secrets. The component integration connects the actual CLI, HTTP handlers, service, and GitHub client. The [live E2E test](integration/cli/testdata/github/README.md) runs the real binary against five private GitHub fixtures and checks discovery filters, HTTP inputs, and CLI dry-run. A separate Flux check runs an isolated Kubernetes envtest environment and real upstream reconcilers; see [compatibility evidence and boundaries](docs/flux-compatibility.md).
-
-Completed implementation checks are recorded in [docs/verification.md](docs/verification.md). Deferred work is tracked in [docs/TODO.md](docs/TODO.md).
+Use `mise tasks` to list all available tasks and their descriptions.

@@ -10,12 +10,15 @@ GOMODCACHE = "{{config_root}}/.cache/go-mod"
 GOLANGCI_LINT_CACHE = "{{config_root}}/.cache/golangci-lint"
 
 [tasks.test]
+description = "Run unit and component tests"
 run = "go test ./..."
 
 [tasks.race]
+description = "Run tests with the Go race detector"
 run = "go test -race ./..."
 
 [tasks.lint]
+description = "Lint Go code, including CLI integration and E2E tests"
 run = "golangci-lint run --build-tags=integration,e2e ./..."
 
 [tasks.lint-ci]
@@ -30,7 +33,12 @@ run = "goreleaser check"
 description = "Build release archives and checksums locally without publishing or Docker"
 run = "goreleaser release --snapshot --clean --skip=publish,docker"
 
+[tasks.dev]
+description = "Run the service with local config.yaml and credentials.yaml"
+run = "go run ./cmd/flux-repository-discovery serve --config config.yaml --credentials-file credentials.yaml"
+
 [tasks.build]
+description = "Build the CLI into bin/"
 run = "go build -o bin/flux-repository-discovery ./cmd/flux-repository-discovery"
 
 [tasks.test-cli]
@@ -42,4 +50,5 @@ description = "Discover private GitHub fixtures through the real binary (require
 run = "go test -race -tags=e2e -count=1 -v -timeout=8m ./integration/cli"
 
 [tasks.check]
+description = "Run unit, race and CLI tests, linters, release validation and build"
 depends = ["test", "race", "lint", "lint-ci", "lint-release", "build", "test-cli"]
