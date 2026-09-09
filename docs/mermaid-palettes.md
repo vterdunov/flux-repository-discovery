@@ -1,10 +1,6 @@
 # Mermaid palette comparison
 
-Six pastel adaptations of familiar editor palettes, shown side by side. Each diagram uses the same discovery flow and layout; only the colors change. These are custom Mermaid palettes inspired by the linked themes.
-
-<table width="100%">
-<tr>
-<td width="50%" valign="top">
+Twelve pastel adaptations of familiar editor palettes, each shown at full width. Each diagram uses the same discovery flow and layout; only the colors change. These are custom Mermaid palettes inspired by the linked themes.
 
 ### 1. [Gruvbox Soft](https://github.com/morhetz/gruvbox)
 
@@ -37,16 +33,17 @@ flowchart TB
     github["GitHub repositories"]
 
     subgraph discovery["flux-repository-discovery"]
+        direction LR
         scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
         filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
     end
 
     subgraph flux["Flux Operator"]
+        direction LR
         provider["ExternalService provider"] --> resources["ResourceSet<br/>Kubernetes resources"]
     end
 
-    github --> scan
-    inputs --> provider
+    github --> discovery --> flux
 
     classDef source fill:#ebdbb2,stroke:#928374,color:#3c3836
     classDef output fill:#b7c7a4,stroke:#928374,color:#3c3836
@@ -55,9 +52,6 @@ flowchart TB
     class inputs output
     class provider,resources consumer
 ```
-
-</td>
-<td width="50%" valign="top">
 
 ### 2. [Tokyo Night](https://github.com/folke/tokyonight.nvim)
 
@@ -90,16 +84,17 @@ flowchart TB
     github["GitHub repositories"]
 
     subgraph discovery["flux-repository-discovery"]
+        direction LR
         scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
         filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
     end
 
     subgraph flux["Flux Operator"]
+        direction LR
         provider["ExternalService provider"] --> resources["ResourceSet<br/>Kubernetes resources"]
     end
 
-    github --> scan
-    inputs --> provider
+    github --> discovery --> flux
 
     classDef source fill:#ccd0df,stroke:#7c88ab,color:#343b58
     classDef output fill:#c6badd,stroke:#7c88ab,color:#343b58
@@ -108,11 +103,6 @@ flowchart TB
     class inputs output
     class provider,resources consumer
 ```
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
 
 ### 3. [Catppuccin Latte](https://catppuccin.com/palette/)
 
@@ -145,16 +135,17 @@ flowchart TB
     github["GitHub repositories"]
 
     subgraph discovery["flux-repository-discovery"]
+        direction LR
         scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
         filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
     end
 
     subgraph flux["Flux Operator"]
+        direction LR
         provider["ExternalService provider"] --> resources["ResourceSet<br/>Kubernetes resources"]
     end
 
-    github --> scan
-    inputs --> provider
+    github --> discovery --> flux
 
     classDef source fill:#ccd0da,stroke:#8c8fa1,color:#4c4f69
     classDef output fill:#ddc4bd,stroke:#8c8fa1,color:#4c4f69
@@ -163,9 +154,6 @@ flowchart TB
     class inputs output
     class provider,resources consumer
 ```
-
-</td>
-<td width="50%" valign="top">
 
 ### 4. [Nord](https://www.nordtheme.com/docs/colors-and-palettes/)
 
@@ -198,16 +186,17 @@ flowchart TB
     github["GitHub repositories"]
 
     subgraph discovery["flux-repository-discovery"]
+        direction LR
         scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
         filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
     end
 
     subgraph flux["Flux Operator"]
+        direction LR
         provider["ExternalService provider"] --> resources["ResourceSet<br/>Kubernetes resources"]
     end
 
-    github --> scan
-    inputs --> provider
+    github --> discovery --> flux
 
     classDef source fill:#c9d2df,stroke:#6d8296,color:#2e3440
     classDef output fill:#afd0cf,stroke:#6d8296,color:#2e3440
@@ -216,11 +205,6 @@ flowchart TB
     class inputs output
     class provider,resources consumer
 ```
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
 
 ### 5. [Solarized Light](https://ethanschoonover.com/solarized/)
 
@@ -253,16 +237,17 @@ flowchart TB
     github["GitHub repositories"]
 
     subgraph discovery["flux-repository-discovery"]
+        direction LR
         scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
         filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
     end
 
     subgraph flux["Flux Operator"]
+        direction LR
         provider["ExternalService provider"] --> resources["ResourceSet<br/>Kubernetes resources"]
     end
 
-    github --> scan
-    inputs --> provider
+    github --> discovery --> flux
 
     classDef source fill:#d9d1ba,stroke:#839496,color:#41565d
     classDef output fill:#b7d0c7,stroke:#839496,color:#41565d
@@ -271,9 +256,6 @@ flowchart TB
     class inputs output
     class provider,resources consumer
 ```
-
-</td>
-<td width="50%" valign="top">
 
 ### 6. [Rosé Pine Dawn](https://rosepinetheme.com/palette/)
 
@@ -306,16 +288,17 @@ flowchart TB
     github["GitHub repositories"]
 
     subgraph discovery["flux-repository-discovery"]
+        direction LR
         scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
         filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
     end
 
     subgraph flux["Flux Operator"]
+        direction LR
         provider["ExternalService provider"] --> resources["ResourceSet<br/>Kubernetes resources"]
     end
 
-    github --> scan
-    inputs --> provider
+    github --> discovery --> flux
 
     classDef source fill:#dcd1cc,stroke:#9893a5,color:#514d6e
     classDef output fill:#c9c3dd,stroke:#9893a5,color:#514d6e
@@ -325,8 +308,314 @@ flowchart TB
     class provider,resources consumer
 ```
 
-</td>
-</tr>
-</table>
+## More Gruvbox and Monokai variants
+
+These variant names describe custom pastel adaptations. Compare them with the original six above.
+
+### 7. [Gruvbox Sand](https://github.com/morhetz/gruvbox)
+
+Deeper sand, faded olive, and soft terracotta.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: "system-ui, sans-serif"
+    fontSize: "14px"
+    primaryColor: "#d2b98b"
+    primaryTextColor: "#3c3836"
+    primaryBorderColor: "#8c755e"
+    lineColor: "#8c755e"
+    textColor: "#3c3836"
+    clusterBkg: "#ddc9a4"
+    clusterBorder: "#8c755e"
+    titleColor: "#3c3836"
+  flowchart:
+    nodeSpacing: 16
+    rankSpacing: 50
+    padding: 12
+    subGraphTitleMargin:
+      top: 6
+      bottom: 8
+---
+flowchart TB
+    github["GitHub repositories"]
+
+    subgraph discovery["flux-repository-discovery"]
+        direction LR
+        scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
+        filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
+    end
+
+    subgraph flux["Flux Operator"]
+        direction LR
+        provider["ExternalService provider"] --> resources["ResourceSet<br/>Kubernetes resources"]
+    end
+
+    github --> discovery --> flux
+
+    classDef source fill:#e0c89b,stroke:#8c755e,color:#3c3836
+    classDef output fill:#c2c18d,stroke:#8c755e,color:#3c3836
+    classDef consumer fill:#cca98d,stroke:#8c755e,color:#3c3836
+    class github source
+    class inputs output
+    class provider,resources consumer
+```
+
+### 8. [Monokai Soft](https://monokai.pro/contribute)
+
+Muted lime, cyan, and pink on warm grey.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: "system-ui, sans-serif"
+    fontSize: "14px"
+    primaryColor: "#bfcc98"
+    primaryTextColor: "#3e3b3f"
+    primaryBorderColor: "#8a8785"
+    lineColor: "#8a8785"
+    textColor: "#3e3b3f"
+    clusterBkg: "#d3d0c4"
+    clusterBorder: "#8a8785"
+    titleColor: "#3e3b3f"
+  flowchart:
+    nodeSpacing: 16
+    rankSpacing: 50
+    padding: 12
+    subGraphTitleMargin:
+      top: 6
+      bottom: 8
+---
+flowchart TB
+    github["GitHub repositories"]
+
+    subgraph discovery["flux-repository-discovery"]
+        direction LR
+        scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
+        filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
+    end
+
+    subgraph flux["Flux Operator"]
+        direction LR
+        provider["ExternalService provider"] --> resources["ResourceSet<br/>Kubernetes resources"]
+    end
+
+    github --> discovery --> flux
+
+    classDef source fill:#dfd3a4,stroke:#8a8785,color:#3e3b3f
+    classDef output fill:#acccd2,stroke:#8a8785,color:#3e3b3f
+    classDef consumer fill:#d6afc0,stroke:#8a8785,color:#3e3b3f
+    class github source
+    class inputs output
+    class provider,resources consumer
+```
+
+### 9. [Gruvbox Sage](https://github.com/morhetz/gruvbox)
+
+Sage, moss, and dusty aqua.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: "system-ui, sans-serif"
+    fontSize: "14px"
+    primaryColor: "#b4c29b"
+    primaryTextColor: "#3c3836"
+    primaryBorderColor: "#79846a"
+    lineColor: "#79846a"
+    textColor: "#3c3836"
+    clusterBkg: "#cad2b8"
+    clusterBorder: "#79846a"
+    titleColor: "#3c3836"
+  flowchart:
+    nodeSpacing: 16
+    rankSpacing: 50
+    padding: 12
+    subGraphTitleMargin:
+      top: 6
+      bottom: 8
+---
+flowchart TB
+    github["GitHub repositories"]
+
+    subgraph discovery["flux-repository-discovery"]
+        direction LR
+        scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
+        filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
+    end
+
+    subgraph flux["Flux Operator"]
+        direction LR
+        provider["ExternalService provider"] --> resources["ResourceSet<br/>Kubernetes resources"]
+    end
+
+    github --> discovery --> flux
+
+    classDef source fill:#d5c4a1,stroke:#79846a,color:#3c3836
+    classDef output fill:#a7c5b0,stroke:#79846a,color:#3c3836
+    classDef consumer fill:#b5c7ba,stroke:#79846a,color:#3c3836
+    class github source
+    class inputs output
+    class provider,resources consumer
+```
+
+### 10. [Monokai Aqua](https://monokai.pro/contribute)
+
+Dusty cyan, faded lime, and lilac.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: "system-ui, sans-serif"
+    fontSize: "14px"
+    primaryColor: "#a9c8ce"
+    primaryTextColor: "#34383d"
+    primaryBorderColor: "#7c8e94"
+    lineColor: "#7c8e94"
+    textColor: "#34383d"
+    clusterBkg: "#c6d5d6"
+    clusterBorder: "#7c8e94"
+    titleColor: "#34383d"
+  flowchart:
+    nodeSpacing: 16
+    rankSpacing: 50
+    padding: 12
+    subGraphTitleMargin:
+      top: 6
+      bottom: 8
+---
+flowchart TB
+    github["GitHub repositories"]
+
+    subgraph discovery["flux-repository-discovery"]
+        direction LR
+        scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
+        filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
+    end
+
+    subgraph flux["Flux Operator"]
+        direction LR
+        provider["ExternalService provider"] --> resources["ResourceSet<br/>Kubernetes resources"]
+    end
+
+    github --> discovery --> flux
+
+    classDef source fill:#c3c4d7,stroke:#7c8e94,color:#34383d
+    classDef output fill:#c3ca99,stroke:#7c8e94,color:#34383d
+    classDef consumer fill:#bdafd3,stroke:#7c8e94,color:#34383d
+    class github source
+    class inputs output
+    class provider,resources consumer
+```
+
+### 11. [Gruvbox Clay](https://github.com/morhetz/gruvbox)
+
+Clay, muted plum, and olive.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: "system-ui, sans-serif"
+    fontSize: "14px"
+    primaryColor: "#cda68d"
+    primaryTextColor: "#3c3836"
+    primaryBorderColor: "#987a6b"
+    lineColor: "#987a6b"
+    textColor: "#3c3836"
+    clusterBkg: "#dcc9b8"
+    clusterBorder: "#987a6b"
+    titleColor: "#3c3836"
+  flowchart:
+    nodeSpacing: 16
+    rankSpacing: 50
+    padding: 12
+    subGraphTitleMargin:
+      top: 6
+      bottom: 8
+---
+flowchart TB
+    github["GitHub repositories"]
+
+    subgraph discovery["flux-repository-discovery"]
+        direction LR
+        scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
+        filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
+    end
+
+    subgraph flux["Flux Operator"]
+        direction LR
+        provider["ExternalService provider"] --> resources["ResourceSet<br/>Kubernetes resources"]
+    end
+
+    github --> discovery --> flux
+
+    classDef source fill:#d5c4a1,stroke:#987a6b,color:#3c3836
+    classDef output fill:#c7b5be,stroke:#987a6b,color:#3c3836
+    classDef consumer fill:#b3bfa2,stroke:#987a6b,color:#3c3836
+    class github source
+    class inputs output
+    class provider,resources consumer
+```
+
+### 12. [Monokai Rose](https://monokai.pro/contribute)
+
+Dusty pink, apricot, and soft violet.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    fontFamily: "system-ui, sans-serif"
+    fontSize: "14px"
+    primaryColor: "#cfa6b7"
+    primaryTextColor: "#3e3b3f"
+    primaryBorderColor: "#91838f"
+    lineColor: "#91838f"
+    textColor: "#3e3b3f"
+    clusterBkg: "#d8ccd2"
+    clusterBorder: "#91838f"
+    titleColor: "#3e3b3f"
+  flowchart:
+    nodeSpacing: 16
+    rankSpacing: 50
+    padding: 12
+    subGraphTitleMargin:
+      top: 6
+      bottom: 8
+---
+flowchart TB
+    github["GitHub repositories"]
+
+    subgraph discovery["flux-repository-discovery"]
+        direction LR
+        scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
+        filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
+    end
+
+    subgraph flux["Flux Operator"]
+        direction LR
+        provider["ExternalService provider"] --> resources["ResourceSet<br/>Kubernetes resources"]
+    end
+
+    github --> discovery --> flux
+
+    classDef source fill:#d9bd9e,stroke:#91838f,color:#3e3b3f
+    classDef output fill:#afa4cb,stroke:#91838f,color:#3e3b3f
+    classDef consumer fill:#b8c598,stroke:#91838f,color:#3e3b3f
+    class github source
+    class inputs output
+    class provider,resources consumer
+```
 
 [Back to the project overview](../README.md#how-it-works).
