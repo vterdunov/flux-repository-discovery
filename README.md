@@ -91,7 +91,7 @@ The first scan starts immediately. Each subsequent scan starts `scan.interval` a
 
 ## Container image and CI
 
-[CI](.github/workflows/ci.yaml) runs `mise run check`, then builds `linux/amd64` and `linux/arm64` images on PRs and pushes to `main`. The final stage is `gcr.io/distroless/static-debian13:nonroot`.
+[CI](.github/workflows/ci.yaml) runs `mise run check` and a [live GitHub discovery E2E test](integration/cli/testdata/github/README.md), then builds `linux/amd64` and `linux/arm64` images on PRs and pushes to `main`. The live test requires the `FRD_E2E_GITHUB_TOKEN` Actions secret and is skipped for fork and Dependabot PRs. The final stage is `gcr.io/distroless/static-debian13:nonroot`.
 
 Registry: `ghcr.io/vterdunov/flux-repository-discovery`. PRs publish `pr-<number>`; `main` publishes `main` and `latest`. Both publish `sha-<full-commit>`; PR images use the tested merge commit. Fork and Dependabot PRs build without publishing.
 
@@ -243,6 +243,8 @@ The `config` package converts an input `Document` into an immutable `Config` wit
 mise run check
 # Run only the real binary, HTTP, CLI, and SIGTERM test:
 mise run test-cli
+# Live discovery against private GitHub fixtures (requires FRD_E2E_GITHUB_TOKEN):
+mise run test-e2e
 # Optional integration with a real, isolated Flux Operator:
 mise exec -- bash integration/flux/run.sh
 ```
@@ -251,6 +253,6 @@ mise exec -- bash integration/flux/run.sh
 
 API tests were written by an independent agent before implementation. RED evidence and SHA256 hashes are recorded in `docs/tdd-*.md`. Additional regressions found during independent review were recorded separately before fixes.
 
-GitHub tests use a fake HTTP transport without real secrets. The component integration connects the actual CLI, HTTP handlers, service, and GitHub client. A separate Flux check runs an isolated Kubernetes envtest environment and real upstream reconcilers; see [compatibility evidence and boundaries](docs/flux-compatibility.md).
+GitHub unit tests use a fake HTTP transport without real secrets. The component integration connects the actual CLI, HTTP handlers, service, and GitHub client. The [live E2E test](integration/cli/testdata/github/README.md) runs the real binary against five private GitHub fixtures and checks discovery filters, HTTP inputs, and CLI dry-run. A separate Flux check runs an isolated Kubernetes envtest environment and real upstream reconcilers; see [compatibility evidence and boundaries](docs/flux-compatibility.md).
 
 Completed implementation checks are recorded in [docs/verification.md](docs/verification.md). Deferred work is tracked in [docs/TODO.md](docs/TODO.md).

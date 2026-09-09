@@ -37,9 +37,29 @@ jobs:
           go_version="$(mise exec -- go env GOVERSION)"
           echo "version=${go_version#go}" >> "$GITHUB_OUTPUT"
 
+  github-e2e:
+    name: GitHub discovery E2E
+    if: github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Check out tested source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install tools from mise.toml
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+
+      - name: Discover live GitHub fixtures
+        env:
+          FRD_E2E_GITHUB_TOKEN: ${{ secrets.FRD_E2E_GITHUB_TOKEN }}
+        run: mise run test-e2e
+
   image:
     name: Build and publish image
-    needs: checks
+    needs: [checks, github-e2e]
+    if: ${{ !cancelled() && needs.checks.result == 'success' && (needs.github-e2e.result == 'success' || needs.github-e2e.result == 'skipped') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
