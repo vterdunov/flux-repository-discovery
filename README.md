@@ -125,9 +125,7 @@ credentials:
       valueEnv: FRD_COMPANY_GITHUB_TOKEN
 ```
 
-The configuration accepts YAML or JSON. Unknown fields, duplicate keys, invalid references, and ambiguous empty conditions are rejected. Source, filter, and credential names must match `[a-z][a-z0-9-]{0,62}`.
-
-The main file and its normalized JSON representation are each limited to 1 MiB. The `config` package checks these limits before passing prepared configuration to the service.
+The configuration accepts YAML or JSON. Source, filter, and credential names must match `[a-z][a-z0-9-]{0,62}`.
 
 | Setting | Default | Environment variable |
 | --- | --- | --- |
@@ -139,7 +137,7 @@ The main file and its normalized JSON representation are each limited to 1 MiB. 
 
 Explicit CLI path flags take precedence over environment variables. Server settings use this precedence: defaults < file < environment. Sources and filters are configured only through the file. Configuration and secrets are loaded once; the platform restarts the process to apply changes.
 
-Filter semantics:
+### Filter semantics
 
 - Source catalogs are combined and deduplicated by numeric GitHub repository ID.
 - `include` rules are combined with OR. Conditions within one rule are combined with AND.
@@ -150,48 +148,28 @@ Filter semantics:
 - Exact names and topics are compared without case sensitivity. Regular expressions are case-sensitive unless `(?i)` is specified.
 - Conflicting metadata for the same ID causes dependent filters to return an error.
 
-A GitHub App credential represents one installation. Multiple installations require separate credential names. A PAT reads the catalog accessible to its token; for a personal account, the owner's public catalog is combined with repositories accessible to the authenticated user. An App lists its installation's repositories and verifies the installation owner.
+### GitHub access
 
-Fine-grained PATs and Apps require access to the intended repositories with `Metadata: read`. Listing repositories does not require reading their files. Visibility is limited by credential permissions: GitHub may successfully return a smaller accessible catalog after permissions change. The service cannot distinguish that response from a repository disappearing normally. [GitHub repository API](https://docs.github.com/en/rest/repos/repos#list-organization-repositories).
+Give the PAT or GitHub App access to the repositories you want to discover. Fine-grained tokens and Apps need only `Metadata: read`. Each App installation uses a separate credential.
 
-Discovery credentials are not passed to Flux. Configure source-controller authentication separately for cloning private repositories.
+## Safe configuration updates
 
-## Dry-run
+Preview how an edited configuration will affect repository selections before applying it. A dry-run shows which inputs would be added, removed or changed while the current configuration remains active.
 
-Edit a local `candidate.yaml` and submit it to the container started above. The CLI container shares the service container's network so it can reach the HTTP endpoint at `localhost:8080`:
+1. Copy `config.yaml` to `candidate.yaml` and make your changes.
+2. Preview the candidate against the running service:
 
-```sh
-docker run --rm \
-  --network container:flux-repository-discovery \
-  --mount "type=bind,src=$PWD/candidate.yaml,dst=/candidate.yaml,readonly" \
-  ghcr.io/vterdunov/flux-repository-discovery:latest dry-run \
-  --config /candidate.yaml \
-  --against http://localhost:8080
-```
+   ```sh
+   docker run --rm \
+     --network container:flux-repository-discovery \
+     --mount "type=bind,src=$PWD/candidate.yaml,dst=/candidate.yaml,readonly" \
+     ghcr.io/vterdunov/flux-repository-discovery:latest dry-run \
+     --config /candidate.yaml \
+     --against http://localhost:8080
+   ```
 
-Add `--output json --detailed-exitcode` to get a JSON report and exit code 3 when changes are found. For a service deployed elsewhere, set `--against` to its reachable URL and adjust the container network accordingly.
-
-The CLI makes no GitHub requests and loads no credentials. Local server environment overrides are not applied to the candidate. The server uses its current credentials and environment overrides.
-
-The report contains:
-
-- Complete structural differences between declared and effective configurations: `configChanges`, `effectiveChanges`, and `overrides`.
-- Per-filter `added`, `removed`, `changed`, and `unchanged` results, before/after counts, complete proposed `inputs`, and `unmatchedRepositories`.
-- Separate `drift` between published inputs and fresh data evaluated with the current rules.
-- Configuration revisions, the base generation, and the observation time.
-
-Current and proposed rules are evaluated against the same fresh catalog. Every change is shown without truncation. Removing a filter reports that its endpoint will return HTTP 404. If there is no successful baseline generation, drift comparison is marked unavailable.
-
-The preview activates nothing and leaves background scan state unchanged. After reviewing it, replace the active configuration separately and let the platform restart the service. New credential names must first be loaded by the running server. Dry-run does not verify future secrets or environment settings.
-
-| Exit code | Meaning |
-| --- | --- |
-| 0 | Success |
-| 1 | Execution or service error |
-| 2 | Invalid local arguments or configuration |
-| 3 | Success with changes, only with `--detailed-exitcode` |
-
-Errors are written to stderr. `--output json` writes only JSON to stdout. V1 allows one concurrent dry-run, bounded by the current server scan timeout. The CLI limits the request to five minutes and the report to 32 MiB.
+3. Review the added, removed and changed repositories for each filter. Adjust the candidate and repeat the preview if needed.
+4. Apply the reviewed file as the service's active configuration and restart the service.
 
 ## HTTP and Flux
 
