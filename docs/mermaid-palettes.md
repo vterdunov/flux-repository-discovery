@@ -10,6 +10,7 @@ Original: deeper sand, faded olive, and soft terracotta.
 ---
 config:
   theme: base
+  htmlLabels: false
   themeVariables:
     fontFamily: "system-ui, sans-serif"
     fontSize: "14px"
@@ -24,7 +25,8 @@ config:
   flowchart:
     nodeSpacing: 16
     rankSpacing: 50
-    padding: 12
+    padding: 20
+    diagramPadding: 48
     subGraphTitleMargin:
       top: 6
       bottom: 8
@@ -55,14 +57,15 @@ flowchart TB
 
 ### 7A. Soft shadows
 
-A small warm shadow and gently rounded nodes.
+Visible warm shadows and gently rounded nodes.
 
 ```mermaid
 ---
 config:
   theme: base
+  htmlLabels: false
   themeCSS: |
-    .node rect { rx: 6px; ry: 6px; filter: drop-shadow(0px 2px 3px #3c38362e); }
+    .node rect { rx: 6px; ry: 6px; filter: drop-shadow(0px 2px 1px #3c383666) drop-shadow(0px 6px 5px #3c38364d); }
     .cluster rect { rx: 10px; ry: 10px; }
   themeVariables:
     fontFamily: "system-ui, sans-serif"
@@ -78,7 +81,8 @@ config:
   flowchart:
     nodeSpacing: 16
     rankSpacing: 50
-    padding: 12
+    padding: 20
+    diagramPadding: 48
     subGraphTitleMargin:
       top: 6
       bottom: 8
@@ -109,15 +113,16 @@ flowchart TB
 
 ### 7B. Raised cards
 
-More depth on the nodes and a soft shadow under each group.
+Raised nodes with a firm contact shadow and a broader shadow under each group.
 
 ```mermaid
 ---
 config:
   theme: base
+  htmlLabels: false
   themeCSS: |
-    .node rect { rx: 8px; ry: 8px; stroke-width: 1px; filter: drop-shadow(0px 4px 4px #3c383638); }
-    .cluster rect { rx: 12px; ry: 12px; filter: drop-shadow(0px 6px 8px #3c383633); }
+    .node rect { rx: 8px; ry: 8px; stroke-width: 1px; filter: drop-shadow(0px 3px 1px #3c383680) drop-shadow(0px 9px 7px #3c383659); }
+    .cluster rect { rx: 12px; ry: 12px; filter: drop-shadow(0px 4px 2px #28282866) drop-shadow(0px 9px 9px #28282859); }
   themeVariables:
     fontFamily: "system-ui, sans-serif"
     fontSize: "14px"
@@ -132,7 +137,8 @@ config:
   flowchart:
     nodeSpacing: 16
     rankSpacing: 50
-    padding: 12
+    padding: 20
+    diagramPadding: 48
     subGraphTitleMargin:
       top: 6
       bottom: 8
@@ -163,15 +169,16 @@ flowchart TB
 
 ### 7C. Soft surfaces
 
-Rounder corners and borderless surfaces defined by gentle shadows.
+Rounder corners and borderless surfaces defined by broad, layered shadows.
 
 ```mermaid
 ---
 config:
   theme: base
+  htmlLabels: false
   themeCSS: |
-    .node rect { rx: 14px; ry: 14px; stroke-width: 0px; filter: drop-shadow(0px 3px 5px #3c383633); }
-    .cluster rect { rx: 18px; ry: 18px; stroke-width: 0px; filter: drop-shadow(0px 7px 10px #3c38362e); }
+    .node rect { rx: 14px; ry: 14px; stroke-width: 0px; filter: drop-shadow(0px 3px 2px #3c383666) drop-shadow(0px 10px 8px #3c383659); }
+    .cluster rect { rx: 18px; ry: 18px; stroke-width: 0px; filter: drop-shadow(0px 5px 2px #28282859) drop-shadow(0px 12px 10px #28282859); }
   themeVariables:
     fontFamily: "system-ui, sans-serif"
     fontSize: "14px"
@@ -186,7 +193,8 @@ config:
   flowchart:
     nodeSpacing: 16
     rankSpacing: 50
-    padding: 12
+    padding: 20
+    diagramPadding: 48
     subGraphTitleMargin:
       top: 6
       bottom: 8
