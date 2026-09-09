@@ -7,17 +7,21 @@ A source failure returns HTTP 503. A successful scan with no matches returns `{"
 ## How it works
 
 ```mermaid
-flowchart LR
+flowchart TB
     github["GitHub repositories"]
 
     subgraph discovery["flux-repository-discovery"]
+        direction LR
         scan["Periodic scan"] --> filters["Named filters<br/>include / exclude"]
         filters --> inputs["JSON inputs<br/>GET /inputs/{filter}"]
     end
 
-    github --> scan
-    inputs --> operator["Flux Operator<br/>ExternalService provider"]
-    operator --> resources["ResourceSet<br/>Kubernetes resources"]
+    subgraph flux["Flux Operator"]
+        direction LR
+        provider["ExternalService provider"] --> resources["ResourceSet<br/>Kubernetes resources"]
+    end
+
+    github --> discovery --> flux
 ```
 
 The service periodically scans the configured GitHub sources, applies each named filter, and serves the matching repositories as `{"inputs":[...]}`. Flux Operator polls the filter's HTTP endpoint through a `ResourceSetInputProvider` of type `ExternalService`. A `ResourceSet` uses these inputs to create Kubernetes resources, such as the `GitRepository` resources in the [Flux example](examples/flux.yaml).
