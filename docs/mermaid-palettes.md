@@ -2,7 +2,7 @@
 
 Six pastel adaptations of familiar editor palettes, shown side by side. Each diagram uses the same discovery flow and layout; only the colors change. These are custom Mermaid palettes inspired by the linked themes.
 
-<table>
+<table width="100%">
 <tr>
 <td width="50%" valign="top">
 
@@ -27,8 +27,11 @@ config:
     titleColor: "#3c3836"
   flowchart:
     nodeSpacing: 16
-    rankSpacing: 22
+    rankSpacing: 50
     padding: 12
+    subGraphTitleMargin:
+      top: 6
+      bottom: 8
 ---
 flowchart TB
     github["GitHub repositories"]
@@ -77,8 +80,11 @@ config:
     titleColor: "#343b58"
   flowchart:
     nodeSpacing: 16
-    rankSpacing: 22
+    rankSpacing: 50
     padding: 12
+    subGraphTitleMargin:
+      top: 6
+      bottom: 8
 ---
 flowchart TB
     github["GitHub repositories"]
@@ -129,8 +135,11 @@ config:
     titleColor: "#4c4f69"
   flowchart:
     nodeSpacing: 16
-    rankSpacing: 22
+    rankSpacing: 50
     padding: 12
+    subGraphTitleMargin:
+      top: 6
+      bottom: 8
 ---
 flowchart TB
     github["GitHub repositories"]
@@ -179,8 +188,11 @@ config:
     titleColor: "#2e3440"
   flowchart:
     nodeSpacing: 16
-    rankSpacing: 22
+    rankSpacing: 50
     padding: 12
+    subGraphTitleMargin:
+      top: 6
+      bottom: 8
 ---
 flowchart TB
     github["GitHub repositories"]
@@ -231,8 +243,11 @@ config:
     titleColor: "#41565d"
   flowchart:
     nodeSpacing: 16
-    rankSpacing: 22
+    rankSpacing: 50
     padding: 12
+    subGraphTitleMargin:
+      top: 6
+      bottom: 8
 ---
 flowchart TB
     github["GitHub repositories"]
@@ -281,8 +296,11 @@ config:
     titleColor: "#514d6e"
   flowchart:
     nodeSpacing: 16
-    rankSpacing: 22
+    rankSpacing: 50
     padding: 12
+    subGraphTitleMargin:
+      top: 6
+      bottom: 8
 ---
 flowchart TB
     github["GitHub repositories"]
