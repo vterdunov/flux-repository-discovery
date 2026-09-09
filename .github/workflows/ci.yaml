@@ -4,13 +4,14 @@ on:
   pull_request:
   push:
     branches: [main]
+    tags: ['v*']
 
 permissions:
   contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
 jobs:
   checks:
@@ -59,7 +60,7 @@ jobs:
   image:
     name: Build and publish image
     needs: [checks, github-e2e]
-    if: ${{ !cancelled() && needs.checks.result == 'success' && (needs.github-e2e.result == 'success' || needs.github-e2e.result == 'skipped') }}
+    if: ${{ !cancelled() && !startsWith(github.ref, 'refs/tags/') && needs.checks.result == 'success' && (needs.github-e2e.result == 'success' || needs.github-e2e.result == 'skipped') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
@@ -86,7 +87,6 @@ jobs:
             type=ref,event=pr
             type=ref,event=branch
             type=sha,format=long
-            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Log in to GHCR
         if: env.PUBLISH_IMAGE == 'true'
@@ -109,3 +109,100 @@ jobs:
             VERSION=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  release-check:
+    name: Release packaging and image smoke test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out source and history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install tools from mise.toml
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+
+      - name: Build snapshot archives and images without publishing
+        run: mise exec -- goreleaser release --snapshot --clean
+
+      - name: Verify checksums and packaged image
+        run: |
+          version="$(jq -r .version dist/metadata.json)"
+          (cd dist && sha256sum --check checksums.txt)
+          for arch in amd64 arm64; do
+            image="ghcr.io/vterdunov/flux-repository-discovery:${version}-${arch}"
+            actual_arch="$(docker image inspect --format '{{.Architecture}}' "$image")"
+            test "$actual_arch" = "$arch"
+          done
+          image="ghcr.io/vterdunov/flux-repository-discovery:${version}-amd64"
+          test "$(docker run --rm "$image" version)" = "$version"
+
+  release:
+    name: Publish release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [checks, github-e2e, release-check]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    concurrency:
+      group: publish-release
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Check out tagged source and history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Require a version tag on main history
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pattern='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$'
+          if [[ ! "$GITHUB_REF_NAME" =~ $pattern ]]; then
+            echo 'Expected vMAJOR.MINOR.PATCH or a prerelease tag.' >&2
+            exit 1
+          fi
+          git merge-base --is-ancestor HEAD origin/main
+          test "$(git rev-parse "${GITHUB_REF_NAME}^{commit}")" = "$(git rev-parse HEAD)"
+          draft="$(gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=100" --paginate \
+            --jq ".[] | select(.tag_name == \"${GITHUB_REF_NAME}\") | .draft")"
+          if [[ -n "$draft" && "$draft" != true ]]; then
+            echo 'This version is already published. Release a new version instead.' >&2
+            exit 1
+          fi
+
+      - name: Install tools from mise.toml
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build artifacts, publish image and upload draft release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mise exec -- goreleaser release --clean
+
+      - name: Publish the completed GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+            gh release edit "$GITHUB_REF_NAME" --draft=false --latest=false
+          else
+            gh release edit "$GITHUB_REF_NAME" --draft=false --latest
+          fi

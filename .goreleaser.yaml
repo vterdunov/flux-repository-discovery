@@ -1,0 +1,65 @@
+version: 2
+project_name: flux-repository-discovery
+
+builds:
+  - id: discovery
+    main: ./cmd/flux-repository-discovery
+    binary: flux-repository-discovery
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, darwin]
+    goarch: [amd64, arm64]
+    flags: [-trimpath, -buildvcs=false]
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - README.md
+      - examples/*.yaml
+      - docs/releases.md
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+snapshot:
+  version_template: "0.0.0-dev-{{ .ShortCommit }}"
+
+dockers_v2:
+  - dockerfile: Dockerfile.release
+    ids: [discovery]
+    images:
+      - ghcr.io/vterdunov/flux-repository-discovery
+    tags:
+      - "{{ .Version }}"
+      - "{{ if and (not .IsSnapshot) (not .Prerelease) }}latest{{ end }}"
+    platforms: [linux/amd64, linux/arm64]
+    labels:
+      org.opencontainers.image.title: "{{ .ProjectName }}"
+      org.opencontainers.image.description: GitHub repository discovery for Flux Operator
+      org.opencontainers.image.source: https://github.com/vterdunov/flux-repository-discovery
+      org.opencontainers.image.version: "{{ .Version }}"
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+      org.opencontainers.image.created: "{{ .Date }}"
+
+release:
+  github:
+    owner: vterdunov
+    name: flux-repository-discovery
+  draft: true
+  use_existing_draft: true
+  replace_existing_artifacts: true
+  prerelease: auto
+  header: |
+    Container: `ghcr.io/vterdunov/flux-repository-discovery:{{ .Version }}`
+    (`linux/amd64`, `linux/arm64`).
+
+    CLI archives for Linux and macOS are attached below with `checksums.txt`.
+    See the [release guide](https://github.com/vterdunov/flux-repository-discovery/blob/{{ .Tag }}/docs/releases.md).
+
+changelog:
+  sort: asc

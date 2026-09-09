@@ -93,7 +93,9 @@ The first scan starts immediately. Each subsequent scan starts `scan.interval` a
 
 [CI](.github/workflows/ci.yaml) runs `mise run check` and a [live GitHub discovery E2E test](integration/cli/testdata/github/README.md), then builds `linux/amd64` and `linux/arm64` images on PRs and pushes to `main`. The live test requires the `FRD_E2E_GITHUB_TOKEN` Actions secret and is skipped for fork and Dependabot PRs. The final stage is `gcr.io/distroless/static-debian13:nonroot`.
 
-Registry: `ghcr.io/vterdunov/flux-repository-discovery`. PRs publish `pr-<number>`; `main` publishes `main` and `latest`. Both publish `sha-<full-commit>`; PR images use the tested merge commit. Fork and Dependabot PRs build without publishing.
+Registry: `ghcr.io/vterdunov/flux-repository-discovery`. Version tags such as `v0.1.0` publish `0.1.0`; stable releases also update `latest`. PRs publish `pr-<number>` and `main` publishes `main`. Both development paths publish `sha-<full-commit>`; PR images use the tested merge commit. Fork and Dependabot PRs build without publishing.
+
+[Releases](https://github.com/vterdunov/flux-repository-discovery/releases) also contain CLI archives for Linux/macOS on amd64/arm64, SHA256 checksums, and release notes. GoReleaser builds the release binaries and packages the same Linux binaries into the container. Every PR checks release packaging and the container's version before a version tag can publish. See the [release process](docs/releases.md) for tagging, downloads, and recovery.
 
 ## Configuration
 
@@ -249,7 +251,7 @@ mise run test-e2e
 mise exec -- bash integration/flux/run.sh
 ```
 
-`check` runs unit tests, the race detector, golangci-lint, actionlint, a build, and the [Go binary test](integration/cli/cli_test.go). The binary test supports Linux/macOS and requires localhost access. It builds current sources into a temporary directory, starts the service without GitHub sources, and checks HTTP, the actual CLI dry-run, and SIGTERM shutdown. Temporary files and child processes are cleaned up on both success and failure. This check requires no Python. See its [contract and verification results](docs/tdd-cli-binary.md).
+`check` runs unit tests, the race detector, golangci-lint, actionlint, GoReleaser configuration validation, a build, and the [Go binary test](integration/cli/cli_test.go). The binary test supports Linux/macOS and requires localhost access. It builds current sources into a temporary directory, starts the service without GitHub sources, and checks HTTP, the actual CLI dry-run, and SIGTERM shutdown. Temporary files and child processes are cleaned up on both success and failure. This check requires no Python. See its [contract and verification results](docs/tdd-cli-binary.md).
 
 API tests were written by an independent agent before implementation. RED evidence and SHA256 hashes are recorded in `docs/tdd-*.md`. Additional regressions found during independent review were recorded separately before fixes.
 

@@ -1,0 +1,12 @@
+# syntax=docker/dockerfile:1
+
+# GoReleaser supplies the same Linux binaries that are attached to the release.
+FROM gcr.io/distroless/static-debian13:nonroot
+
+ARG TARGETPLATFORM
+COPY ${TARGETPLATFORM}/flux-repository-discovery /flux-repository-discovery
+
+USER 65532:65532
+EXPOSE 8080
+ENTRYPOINT ["/flux-repository-discovery"]
+CMD ["serve"]

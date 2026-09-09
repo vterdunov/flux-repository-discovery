@@ -1,5 +1,6 @@
 /.cache/
 /bin/
+/dist/
 /credentials.yaml
 /config.yaml
 /.env
