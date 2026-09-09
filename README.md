@@ -25,6 +25,12 @@ bin/flux-repository-discovery serve \
 
 The first scan starts immediately. Each subsequent scan starts `scan.interval` after the previous scan finishes. The default interval is 10 minutes, with a 2-minute timeout for the entire scan. SIGINT/SIGTERM cancel scanning and shut down the HTTP server.
 
+## Container image and CI
+
+[CI](.github/workflows/ci.yaml) runs `mise run check`, then builds `linux/amd64` and `linux/arm64` images on PRs and pushes to `main`. The final stage is `gcr.io/distroless/static-debian13:nonroot`.
+
+Registry: `ghcr.io/vterdunov/flux-repository-discovery`. PRs publish `pr-<number>`; `main` publishes `main` and `latest`. Both publish `sha-<full-commit>`; PR images use the tested merge commit. Fork and Dependabot PRs build without publishing.
+
 ## Configuration
 
 A minimal PAT configuration:
@@ -160,7 +166,7 @@ mise run test-cli
 mise exec -- bash integration/flux/run.sh
 ```
 
-`check` runs unit tests, the race detector, golangci-lint, a build, and the [Go binary test](integration/cli/cli_test.go). The binary test supports Linux/macOS and requires localhost access. It builds current sources into a temporary directory, starts the service without GitHub sources, and checks HTTP, the actual CLI dry-run, and SIGTERM shutdown. Temporary files and child processes are cleaned up on both success and failure. This check requires no Python. See its [contract and verification results](docs/tdd-cli-binary.md).
+`check` runs unit tests, the race detector, golangci-lint, actionlint, a build, and the [Go binary test](integration/cli/cli_test.go). The binary test supports Linux/macOS and requires localhost access. It builds current sources into a temporary directory, starts the service without GitHub sources, and checks HTTP, the actual CLI dry-run, and SIGTERM shutdown. Temporary files and child processes are cleaned up on both success and failure. This check requires no Python. See its [contract and verification results](docs/tdd-cli-binary.md).
 
 API tests were written by an independent agent before implementation. RED evidence and SHA256 hashes are recorded in `docs/tdd-*.md`. Additional regressions found during independent review were recorded separately before fixes.
 

@@ -1,0 +1,9 @@
+# Only build inputs enter the context. Local configuration and credentials stay out.
+**
+!Dockerfile
+!go.mod
+!go.sum
+!cmd/
+!cmd/**
+!internal/
+!internal/**
