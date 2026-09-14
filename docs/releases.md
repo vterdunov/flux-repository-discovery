@@ -69,9 +69,10 @@ Live E2E continues to use the separate metadata-only `FRD_E2E_GITHUB_TOKEN` secr
 After tests pass, every PR, main push, and version tag runs a snapshot packaging
 job. It uses the actual GoReleaser config to build all four archives and both
 container platforms without publishing. It verifies archive checksums, image
-architectures, and the native Linux container's `version` output. For main pushes and same-repository PRs
-except Dependabot, CI then pushes these tested images and assembles the development
-tags into multi-platform manifests without rebuilding. GoReleaser OSS snapshots
+architectures, and the native Linux container's `version` output. For main pushes
+and same-repository PRs except Dependabot, CI then pushes these tested images and
+assembles the development tags into multi-platform manifests without rebuilding.
+GoReleaser OSS snapshots
 do not publish artifacts themselves. Fork and Dependabot PRs only build and verify.
 Ordinary `mise run check` also validates the GoReleaser configuration.
 

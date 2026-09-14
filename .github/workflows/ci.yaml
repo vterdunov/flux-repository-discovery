@@ -138,7 +138,10 @@ jobs:
           while IFS= read -r tag; do
             test -n "$tag" || continue
             docker buildx imagetools inspect "$tag" --raw | jq -e '
-              [.manifests[].platform | "\(.os)/\(.architecture)"] | sort == ["linux/amd64", "linux/arm64"]'
+              [.manifests[]
+                | select(.annotations["vnd.docker.reference.type"] != "attestation-manifest")
+                | .platform | "\(.os)/\(.architecture)"]
+              | sort == ["linux/amd64", "linux/arm64"]'
           done <<< "$IMAGE_TAGS"
 
   release:
