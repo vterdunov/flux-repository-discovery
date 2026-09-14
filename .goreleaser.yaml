@@ -46,6 +46,10 @@ dockers_v2:
       org.opencontainers.image.revision: "{{ .FullCommit }}"
       org.opencontainers.image.created: "{{ .Date }}"
 
+docker_signs:
+  - args: [sign, --yes, "${artifact}@${digest}"]
+    output: true
+
 release:
   github:
     owner: vterdunov
