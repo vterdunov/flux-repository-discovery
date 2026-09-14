@@ -34,7 +34,7 @@ jobs:
 
   github-e2e:
     name: GitHub discovery E2E
-    if: github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]')
+    if: github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
@@ -64,8 +64,8 @@ jobs:
       packages: write
       id-token: write
     env:
-      # Fork and dependency bot PRs build images without publishing.
-      PUBLISH_IMAGE: ${{ !startsWith(github.ref, 'refs/tags/') && (github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]')) }}
+      # Fork and Dependabot PRs receive a read-only token.
+      PUBLISH_IMAGE: ${{ !startsWith(github.ref, 'refs/tags/') && (github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')) }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
