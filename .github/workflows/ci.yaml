@@ -24,10 +24,10 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install tools from mise.toml
+      - name: Install tools
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
 
-      - name: Run all checks
+      - name: Run checks
         run: mise run check
 
   github-e2e:
@@ -41,16 +41,16 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install tools from mise.toml
+      - name: Install tools
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
 
-      - name: Discover live GitHub fixtures
+      - name: Run GitHub E2E
         env:
           FRD_E2E_GITHUB_TOKEN: ${{ secrets.FRD_E2E_GITHUB_TOKEN }}
         run: mise run test-e2e
 
   release-check:
-    name: Release packaging and image smoke test
+    name: Packaging
     needs: [checks, github-e2e]
     if: ${{ !cancelled() && needs.checks.result == 'success' && (needs.github-e2e.result == 'success' || needs.github-e2e.result == 'skipped') }}
     runs-on: ubuntu-24.04
@@ -69,16 +69,16 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Install tools from mise.toml
+      - name: Install tools
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
 
-      - name: Set up Docker Buildx
+      - name: Set up Buildx
         uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
 
-      - name: Build snapshot archives and images without publishing
+      - name: Build snapshot
         run: goreleaser release --snapshot --clean
 
-      - name: Verify checksums and packaged image
+      - name: Verify snapshot
         id: snapshot
         run: |
           version="$(jq -er .version dist/metadata.json)"
@@ -92,7 +92,7 @@ jobs:
           image="ghcr.io/vterdunov/flux-repository-discovery:${version}-amd64"
           test "$(docker run --rm "$image" version)" = "$version"
 
-      - name: Prepare prebuilt binaries for Docker
+      - name: Prepare Docker context
         if: env.PUBLISH_IMAGE == 'true'
         run: |
           for arch in amd64 arm64; do
@@ -101,7 +101,7 @@ jobs:
             cp "$binary" "dist/container/linux/$arch/flux-repository-discovery"
           done
 
-      - name: Generate development image tags
+      - name: Image metadata
         if: env.PUBLISH_IMAGE == 'true'
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
@@ -122,7 +122,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and publish development image
+      - name: Publish image
         if: env.PUBLISH_IMAGE == 'true'
         id: image
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
@@ -138,7 +138,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Verify published development manifests
+      - name: Verify platforms
         if: env.PUBLISH_IMAGE == 'true'
         env:
           IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
@@ -152,7 +152,7 @@ jobs:
               | sort == ["linux/amd64", "linux/arm64"]'
           done <<< "$IMAGE_TAGS"
 
-      - name: Sign and verify development image
+      - name: Sign and verify image
         if: env.PUBLISH_IMAGE == 'true'
         env:
           IMAGE: ghcr.io/${{ github.repository }}@${{ steps.image.outputs.digest }}
@@ -182,7 +182,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Require a version tag on main history
+      - name: Validate release tag
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -201,10 +201,10 @@ jobs:
             exit 1
           fi
 
-      - name: Install tools from mise.toml
+      - name: Install tools
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
 
-      - name: Set up Docker Buildx
+      - name: Set up Buildx
         uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
 
       - name: Log in to GHCR
@@ -214,12 +214,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build artifacts, publish image and upload draft release
+      - name: Publish artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: goreleaser release --clean
 
-      - name: Verify release image signature
+      - name: Verify signature
         run: |
           image="ghcr.io/vterdunov/flux-repository-discovery"
           digest="$(docker buildx imagetools inspect "$image:${GITHUB_REF_NAME#v}" --format '{{json .Manifest}}' | jq -er .digest)"
@@ -227,7 +227,7 @@ jobs:
             --certificate-identity "https://github.com/$GITHUB_WORKFLOW_REF" \
             --certificate-oidc-issuer https://token.actions.githubusercontent.com
 
-      - name: Publish the completed GitHub Release
+      - name: Publish release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
