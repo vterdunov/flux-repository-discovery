@@ -203,7 +203,7 @@ Install the development tools with [mise](https://mise.jdx.dev/):
 mise install --locked
 ```
 
-After changing tool versions in `mise.toml`, run `mise lock` and commit both files.
+Commit `mise.toml` and `mise.lock` together when updating tools.
 
 Create `config.yaml` and `credentials.yaml` as described in [Configuration](#configuration), then start the service:
 
