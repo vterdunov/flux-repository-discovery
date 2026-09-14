@@ -26,13 +26,15 @@ jobs:
 
       - name: Install tools
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          install_args: --locked
 
       - name: Run checks
         run: mise run check
 
   github-e2e:
     name: GitHub discovery E2E
-    if: github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
+    if: github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]')
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
@@ -43,6 +45,8 @@ jobs:
 
       - name: Install tools
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          install_args: --locked
 
       - name: Run GitHub E2E
         env:
@@ -60,8 +64,8 @@ jobs:
       packages: write
       id-token: write
     env:
-      # Fork and Dependabot PRs receive a read-only token.
-      PUBLISH_IMAGE: ${{ !startsWith(github.ref, 'refs/tags/') && (github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')) }}
+      # Fork and dependency bot PRs build images without publishing.
+      PUBLISH_IMAGE: ${{ !startsWith(github.ref, 'refs/tags/') && (github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]')) }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -71,6 +75,8 @@ jobs:
 
       - name: Install tools
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          install_args: --locked
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
@@ -203,6 +209,8 @@ jobs:
 
       - name: Install tools
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          install_args: --locked
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
