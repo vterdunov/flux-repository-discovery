@@ -1,8 +1,9 @@
 # Releases
 
-Releases use GoReleaser OSS, pinned in [mise.toml](../mise.toml), and the existing
-[GitHub Actions workflow](../.github/workflows/ci.yaml). The release configuration
-is [.goreleaser.yaml](../.goreleaser.yaml). No GoReleaser Pro license or additional
+All container images and releases use GoReleaser OSS, pinned in
+[mise.toml](../mise.toml), and the existing
+[GitHub Actions workflow](../.github/workflows/ci.yaml). The shared configuration is
+[.goreleaser.yaml](../.goreleaser.yaml). No GoReleaser Pro license or additional
 publishing token is required.
 
 | Artifact | Platforms | Example for 0.1.0 |
@@ -13,10 +14,11 @@ publishing token is required.
 | GitHub Release | Tag, notes and downloads | `v0.1.0` |
 
 The `version` command prints `0.1.0` in both archives and the release container.
-The container copies the Linux binaries built by GoReleaser, using
-[Dockerfile.release](../Dockerfile.release) and the same distroless nonroot base
-as development images. GoReleaser's [Docker v2 integration](https://goreleaser.com/customization/package/dockers_v2/)
-uses Buildx to assemble both platforms from the prebuilt binaries.
+All containers use [Dockerfile.release](../Dockerfile.release) with a distroless
+nonroot base and Linux binaries built by GoReleaser. Development images are
+published by `docker/build-push-action`; versioned images use GoReleaser's
+[Docker v2 integration](https://goreleaser.com/customization/package/dockers_v2/).
+Both use Buildx with a build context containing only the prebuilt Linux binaries.
 
 ## Version and image tags
 
@@ -27,8 +29,9 @@ uses Buildx to assemble both platforms from the prebuilt binaries.
   versions in increasing order. Pin an exact version or image digest in deployments.
 - Prereleases such as `v0.2.0-rc.1` publish `:0.2.0-rc.1` and are marked as
   prereleases on GitHub. They do not update `:latest`.
-- `:main`, `:pr-<number>` and `:sha-<commit>` remain development images.
-  Main pushes no longer update `:latest`.
+- `:main`, `:pr-<number>` and `:sha-<commit>` are development images from the
+  tested GoReleaser snapshot. Their `version` output is `0.0.0-dev-<commit>`.
+  Main pushes do not update `:latest`.
 
 Before 1.0, use patch releases for compatible fixes and minor releases for new
 features or breaking changes. Describe breaking changes explicitly in the release
@@ -58,18 +61,20 @@ notes. Keep published tags and assets unchanged; publish another version for fix
    docker run --rm ghcr.io/vterdunov/flux-repository-discovery:0.1.0 version
    ```
 
-The repository is private. Downloads require repository access, and pulling its
-private GHCR package requires registry authentication. The workflow uses its own
-`GITHUB_TOKEN` with `contents: write` and `packages: write` only in publishing jobs.
+Publishing jobs use the workflow's `GITHUB_TOKEN` for registry/release access and
+GitHub OIDC (`id-token: write`) for keyless Cosign signatures.
 Live E2E continues to use the separate metadata-only `FRD_E2E_GITHUB_TOKEN` secret.
 
 ## Verification before tagging
 
-Every PR, main push, and version tag runs a snapshot packaging job. It uses the
-actual GoReleaser config to build all four archives and both container platforms
-without publishing. It verifies archive checksums, image architectures, and the
-native Linux container's `version` output. Ordinary `mise run check` also validates
-the GoReleaser configuration.
+After tests pass, every PR, main push, and version tag runs a snapshot packaging
+job. It uses the actual GoReleaser config to build all four archives and both
+container platforms without publishing. It verifies archive checksums, image
+architectures, and the native Linux container's `version` output. For main pushes
+and same-repository PRs except Dependabot, `docker/build-push-action` then packages
+the same binaries and publishes development tags, SBOMs, and provenance. It does
+not compile Go. Fork and Dependabot PRs only build and verify.
+Ordinary `mise run check` also validates the GoReleaser configuration.
 
 For local validation without a Docker daemon or publishing credentials:
 
@@ -82,6 +87,27 @@ mise run release-snapshot
 This writes archives, binaries, checksums and metadata under ignored `dist/`.
 Snapshot versions are `0.0.0-dev-<commit>`. The local task explicitly skips Docker
 and publishing; the CI packaging job additionally builds and tests the images.
+
+## Container signatures
+
+New development and release images are signed by digest with Cosign using GitHub
+OIDC. CI verifies the signature against the exact workflow identity and issuer;
+no signing key or additional secret is required. A release is published on GitHub
+only after signature verification passes. Existing image versions are not signed
+retroactively.
+
+To verify a signed release, use its tag and published multi-platform digest:
+
+```sh
+tag=vX.Y.Z
+image=ghcr.io/vterdunov/flux-repository-discovery@sha256:REPLACE_WITH_DIGEST
+cosign verify "$image" \
+  --certificate-identity "https://github.com/vterdunov/flux-repository-discovery/.github/workflows/ci.yaml@refs/tags/$tag" \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+```
+
+Development identities end in `@refs/heads/main` or `@refs/pull/<number>/merge`.
+Use the release tag identity when verifying a release for deployment.
 
 ## Failed or interrupted releases
 
