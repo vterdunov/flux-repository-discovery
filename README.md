@@ -200,7 +200,7 @@ The v1 HTTP API has no authentication. Separate middleware hooks are available f
 Install the development tools with [mise](https://mise.jdx.dev/):
 
 ```sh
-mise install
+mise install --locked
 ```
 
 Create `config.yaml` and `credentials.yaml` as described in [Configuration](#configuration), then start the service:
